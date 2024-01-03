@@ -1,11 +1,9 @@
 import React from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Playground from './screens/Playground';
-import ApiKey from './screens/ApiKey';
-import Subscription from './screens/Subscription';
-import Usage from './screens/Usage';
 import Login from './screens/Login';
 import Signup from './screens/Signup';
+import DrawerNavigator from './DrawerNavigator';
+import Profile from './screens/Profile';
 
 
 const Stack = createNativeStackNavigator();
@@ -17,10 +15,8 @@ const RootNavigator = () => {
         <Stack.Navigator initialRouteName={isSignedIn ? "Playground" : "Login"} screenOptions={{ headerShown: false }}>
             {isSignedIn ? (
                 <Stack.Group>
-                    <Stack.Screen name="Playground" component={Playground} />
-                    <Stack.Screen name="ApiKey" component={ApiKey} />
-                    <Stack.Screen name='Subscription' component={Subscription} />
-                    <Stack.Screen name='Usage' component={Usage} />
+                    <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
+                    <Stack.Screen name="Profile" component={Profile} />
                 </Stack.Group>
             ) : (
                 <Stack.Group>
