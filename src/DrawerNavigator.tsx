@@ -12,7 +12,7 @@ const DrawerStack = createDrawerNavigator();
 
 const DrawerNavigator = () => {
   return (
-    <DrawerStack.Navigator initialRouteName="Playground" screenOptions={{ headerTitle: "Sync.labs", headerRight: () => <Avatar size={40} uri={AVATAR_URI} onPress={() => console.log("test")} /> }}>
+    <DrawerStack.Navigator initialRouteName="Playground" screenOptions={{ headerTitle: "sync.labs.", headerRight: () => <Avatar size={40} uri={AVATAR_URI} onPress={() => console.log("test")} /> }}>
       <DrawerStack.Screen name="Playground" component={Playground} />
       <DrawerStack.Screen name="Subscription" component={Subscription} />
       <DrawerStack.Screen name="Usage" component={Usage} />
