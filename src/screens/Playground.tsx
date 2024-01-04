@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, SafeAreaView, TextInput } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, SafeAreaView, TextInput, Alert } from 'react-native'
 import React from 'react'
 import { Feather } from '@expo/vector-icons';
 
@@ -8,7 +8,7 @@ enum UploadStrategy {
   OTHER_URL = "OTHER_URL"
 }
 
-const UploadComp = ({ uploadStrategyState }: { uploadStrategyState: UploadStrategy }) => {
+const UploadComp = ({ uploadStrategyState, showAlert }: { uploadStrategyState: UploadStrategy, showAlert: () => void }) => {
   if (uploadStrategyState === UploadStrategy.UPLOAD) {
     return (
       <View className='flex justify-center items-center h-24 bg-slate-400 rounded-lg'>
@@ -22,9 +22,8 @@ const UploadComp = ({ uploadStrategyState }: { uploadStrategyState: UploadStrate
         <Text className='pb-2'>add youtube url</Text>
         <View className='w-full h-12 flex flex-row px-2 pb-2'>
           <TextInput className='w-3/4 h-full border border-slate-800 rounded-lg p-2' placeholder='add video url' />
-          <TouchableOpacity className='w-1/4 h-full bg-neutral-100 border flex justify-center items-center rounded-lg'><Text>Add</Text></TouchableOpacity>
+          <TouchableOpacity className='w-1/4 h-full bg-neutral-100 border flex justify-center items-center rounded-lg' onPress={showAlert}><Text>Add</Text></TouchableOpacity>
         </View>
-        {/* <Text className='text-white'>(*must upload both audio and video file)</Text> */}
       </View>
     )
   }
@@ -34,7 +33,7 @@ const UploadComp = ({ uploadStrategyState }: { uploadStrategyState: UploadStrate
         <Text className='pb-2'>add other url</Text>
         <View className='w-full h-12 flex flex-row px-2 pb-2'>
           <TextInput className='w-3/4 h-full border border-slate-800 rounded-lg p-2' placeholder='s3, dropbox video url' />
-          <TouchableOpacity className='w-1/4 h-full bg-neutral-100 border flex justify-center items-center rounded-lg'><Text>Add</Text></TouchableOpacity>
+          <TouchableOpacity className='w-1/4 h-full bg-neutral-100 border flex justify-center items-center rounded-lg' onPress={showAlert}><Text>Add</Text></TouchableOpacity>
         </View>
       </View>
     )
@@ -45,15 +44,53 @@ const Playground = () => {
 
   const [uploadStrategyState, setUploadStrategyState] = React.useState<UploadStrategy>(UploadStrategy.UPLOAD)
 
+  const showAlert = () => {
+    Alert.alert(
+      'Select media type',
+      'Would you like to use this Youtube URL for the video or audio?',
+      [
+        {
+          text: 'Audio',
+          onPress: () => Alert.alert('Audio Pressed'),
+          style: 'default',
+        },
+        {
+          text: 'Video',
+          onPress: () => Alert.alert('Video Pressed'),
+          style: 'cancel',
+        },
+      ],
+      {
+        cancelable: true,
+      },
+    );
+  }
+
   return (
     <SafeAreaView>
       <ScrollView className='w-full flex' contentContainerStyle={{ alignItems: "center", justifyContent: "flex-start" }}>
         <Text className='py-4 text-xl font-bold'>sync any video to any language</Text>
-        <View className='w-full p-2 pt-4'>
-          <Text>Video Url* : https://www.youtube.com/</Text>
-          <Text>Audio Url* : https://www.youtube.com </Text>
+        <View className='w-full p-2'>
+          <View className='py-4 gap-4'>
+            <View>
+              <Text className="font-bold text-base border-b-0">videofile</Text>
+              <View className='flex flex-row justify-between items-center h-12'>
+                <View className='flex flex-row justify-between items-center'>
+                  <TouchableOpacity><Image className='h-12 w-20 rounded-lg' source={{ uri: "https://img.freepik.com/premium-psd/youtube-video-thumbnail-start-trading-today_475351-168.jpg" }} /></TouchableOpacity>
+                  <Text className='px-2'>https://www.youtube.com/</Text>
+                </View>
+                <TouchableOpacity className='bg-red-400 p-2 rounded-lg'><Text>Clear</Text></TouchableOpacity>
+              </View>
+            </View>
+            <View >
+              <Text className="font-bold text-base">audiofile</Text>
+              <View className='flex flex-row justify-between items-center h-12'>
+                <Text>No audio file uploaded (required*)</Text>
+              </View>
+            </View>
+          </View>
           <View className='flex justify-center items-center h-24 bg-slate-400 rounded-lg'>
-            <UploadComp uploadStrategyState={uploadStrategyState} />
+            <UploadComp uploadStrategyState={uploadStrategyState} showAlert={showAlert} />
           </View>
           <View className='flex flex-row justify-between items-center py-2'>
             <TouchableOpacity onPress={() => setUploadStrategyState(UploadStrategy.UPLOAD)} style={[uploadStrategyState === UploadStrategy.UPLOAD ? styles.selectedButton : styles.unselectedButton]} className='p-2 px-4 rounded-lg'><Text>upload</Text></TouchableOpacity>
@@ -78,6 +115,7 @@ const Playground = () => {
             <Image source={{ uri: "https://datasets-server.huggingface.co/assets/daspartho/mrbeast-thumbnails/--/default/train/24/image/image.jpg" }} className='h-52 w-full rounded-lg' />
           </TouchableOpacity>
         </View>
+
       </ScrollView>
     </SafeAreaView>
   )
