@@ -15,7 +15,7 @@ const DrawerNavigator = () => {
   const navigaton = useNavigation<any>();
 
   return (
-    <DrawerStack.Navigator initialRouteName="Playground" screenOptions={{ headerTitle: "sync.labs.", headerRight: () => <Avatar size={40} uri={AVATAR_URI} onPress={() => navigaton.navigate("Profile")} /> }}>
+    <DrawerStack.Navigator initialRouteName="Playground" screenOptions={{ headerTitle: "sync.labs", headerRight: () => <Avatar size={40} uri={AVATAR_URI} onPress={() => navigaton.navigate("Profile")} /> }}>
       <DrawerStack.Screen name="Playground" component={Playground} />
       <DrawerStack.Screen name="Subscription" component={Subscription} />
       <DrawerStack.Screen name="Usage" component={Usage} />
