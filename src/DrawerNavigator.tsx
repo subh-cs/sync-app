@@ -5,14 +5,17 @@ import Subscription from './screens/Subscription';
 import Usage from './screens/Usage';
 import ApiKey from './screens/ApiKey';
 import Avatar from './components/Avatar';
+import { useNavigation } from '@react-navigation/native';
 
 const AVATAR_URI = 'https://gravatar.com/avatar/1f82b0492a0a938288c2d5b70534a1fb?s=400&d=robohash&r=x'
 
 const DrawerStack = createDrawerNavigator();
 
 const DrawerNavigator = () => {
+  const navigaton = useNavigation<any>();
+
   return (
-    <DrawerStack.Navigator initialRouteName="Playground" screenOptions={{ headerTitle: "sync.labs.", headerRight: () => <Avatar size={40} uri={AVATAR_URI} onPress={() => console.log("test")} /> }}>
+    <DrawerStack.Navigator initialRouteName="Playground" screenOptions={{ headerTitle: "sync.labs.", headerRight: () => <Avatar size={40} uri={AVATAR_URI} onPress={() => navigaton.navigate("Profile")} /> }}>
       <DrawerStack.Screen name="Playground" component={Playground} />
       <DrawerStack.Screen name="Subscription" component={Subscription} />
       <DrawerStack.Screen name="Usage" component={Usage} />
