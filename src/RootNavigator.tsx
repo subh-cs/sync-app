@@ -8,18 +8,26 @@ import Profile from './screens/Profile';
 const RootStack = createNativeStackNavigator();
 
 const RootNavigator = () => {
-    const [isSignedIn, setIsSignedIn] = React.useState(true)
+    const [isSignedIn, setIsSignedIn] = React.useState(true);
+
+    const onLogout = () => {
+        setIsSignedIn(false);
+    }
+
+    const onLogin = () => {
+        setIsSignedIn(true);
+    }
 
     return (
         <RootStack.Navigator initialRouteName={isSignedIn ? "Playground" : "Login"} screenOptions={{ headerShown: false }}>
             {isSignedIn ? (
                 <RootStack.Group>
-                    <RootStack.Screen name="DrawerNavigator" component={DrawerNavigator} />
-                    <RootStack.Screen name="Profile" component={Profile} />
+                    <RootStack.Screen name="DrawerNavigator" children={() => <DrawerNavigator />} />
+                    <RootStack.Screen name="Profile" children={() => <Profile onLogout={onLogout} />} />
                 </RootStack.Group>
             ) : (
                 <RootStack.Group>
-                    <RootStack.Screen name="Login" component={Login} />
+                    <RootStack.Screen name="Login" children={() => <Login onLogin={onLogin} />} />
                     <RootStack.Screen name="SignUp" component={Signup} />
                 </RootStack.Group>
             )}
