@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, SafeAreaView, TextInput, Alert } from 'react-native'
 import React from 'react'
-import { Feather, Entypo, MaterialIcons } from '@expo/vector-icons';
+import { AntDesign, Entypo, MaterialIcons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 const { useNavigation } = require('@react-navigation/native');
 
@@ -33,9 +33,9 @@ const UploadComp = ({ uploadStrategyState, showAlert, pickVideo, pickAudio }: { 
     return (
       <View className='flex justify-center items-center h-20 bg-slate-400 rounded-lg w-full'>
         <Text className='pb-2'>add youtube url</Text>
-        <View className='w-full h-12 flex flex-row px-2 pb-2'>
-          <TextInput value={youtubeInputUrl} onChangeText={setYoutubeInputUrl} className='w-3/4 h-full border border-slate-800 rounded-lg p-2' placeholder='add video url' />
-          <TouchableOpacity className='w-1/4 h-full bg-neutral-100 border flex justify-center items-center rounded-lg' onPress={() => { showAlert(youtubeInputUrl, UploadStrategy.YOUTUBE); setYoutubeInputUrl("") }}><Text>Add</Text></TouchableOpacity>
+        <View className='w-full h-12 flex flex-row px-2 pb-2 justify-evenly'>
+          <TextInput value={youtubeInputUrl} onChangeText={setYoutubeInputUrl} className='w-4/6 h-full border border-slate-800 rounded-lg p-2' placeholder='add video url' />
+          <TouchableOpacity className='w-1/6 h-full bg-neutral-100 border flex justify-center items-center rounded-lg' onPress={() => { showAlert(youtubeInputUrl, UploadStrategy.YOUTUBE); setYoutubeInputUrl("") }}><Text>Add</Text></TouchableOpacity>
         </View>
       </View>
     )
@@ -44,9 +44,9 @@ const UploadComp = ({ uploadStrategyState, showAlert, pickVideo, pickAudio }: { 
     return (
       <View className='flex justify-center items-center h-20 bg-slate-400 rounded-lg'>
         <Text className='pb-2'>add other url</Text>
-        <View className='w-full h-12 flex flex-row px-2 pb-2'>
-          <TextInput value={otherInputUrl} onChangeText={setOtherInputUrl} className='w-3/4 h-full border border-slate-800 rounded-lg p-2' placeholder='s3, dropbox video url' />
-          <TouchableOpacity className='w-1/4 h-full bg-neutral-100 border flex justify-center items-center rounded-lg' onPress={() => { showAlert(otherInputUrl, UploadStrategy.OTHER_URL); setOtherInputUrl("") }}><Text>Add</Text></TouchableOpacity>
+        <View className='w-full h-12 flex flex-row px-2 pb-2 justify-evenly'>
+          <TextInput value={otherInputUrl} onChangeText={setOtherInputUrl} className='w-4/6 h-full border border-slate-800 rounded-lg p-2' placeholder='s3, dropbox video url' />
+          <TouchableOpacity className='w-1/6 h-full bg-neutral-100 border flex justify-center items-center rounded-lg' onPress={() => { showAlert(otherInputUrl, UploadStrategy.OTHER_URL); setOtherInputUrl("") }}><Text>Add</Text></TouchableOpacity>
         </View>
       </View>
     )
@@ -201,14 +201,14 @@ const Playground = () => {
 
   return (
     <SafeAreaView>
-      <ScrollView className='w-full flex'>
-        <View className='w-full px-2'>
+      <ScrollView className='flex'>
+        <View className='px-2'>
           {/* <Text className='text-xl font-bold items-start'>lipsync</Text>
           <Text className='text-sm items-start text-gray-500'>sync any video with any audio to any language</Text>
           <Text className="flex-grow border-t border-gray-400"></Text> */}
         </View>
 
-        <View className='w-full p-2'>
+        <View className='p-2'>
           <View className=''>
             <View>
               <Text className="font-bold text-base border-b-0">videofile</Text>
@@ -258,20 +258,35 @@ const Playground = () => {
           </View>
           <TouchableOpacity className='flex flex-row justify-center items-center bg-slate-400 py-4 rounded-lg'><Text className='text-white'>Submit</Text></TouchableOpacity>
         </View>
-        <View className='w-full p-2'>
-          {/* Thumbnail */}
-          <TouchableOpacity className='py-2' onPress={() => navigation.navigate("VideoPlayer")}>
-            <Image source={{ uri: "https://datasets-server.huggingface.co/assets/daspartho/mrbeast-thumbnails/--/default/train/24/image/image.jpg" }} className='h-52 w-full rounded-lg' />
-          </TouchableOpacity>
-          <TouchableOpacity className='py-2'>
-            <Image source={{ uri: "https://datasets-server.huggingface.co/assets/daspartho/mrbeast-thumbnails/--/default/train/24/image/image.jpg" }} className='h-52 w-full rounded-lg' />
-          </TouchableOpacity>
-          <TouchableOpacity className='py-2'>
-            <Image source={{ uri: "https://datasets-server.huggingface.co/assets/daspartho/mrbeast-thumbnails/--/default/train/24/image/image.jpg" }} className='h-52 w-full rounded-lg' />
-          </TouchableOpacity>
-          <TouchableOpacity className='py-2'>
-            <Image source={{ uri: "https://datasets-server.huggingface.co/assets/daspartho/mrbeast-thumbnails/--/default/train/24/image/image.jpg" }} className='h-52 w-full rounded-lg' />
-          </TouchableOpacity>
+        {/* Thumbnail */}
+        <View className='px-2'
+        >
+          <View>
+            <TouchableOpacity className='py-2 items-center' onPress={() => navigation.navigate("VideoPlayer")}>
+              <Image source={{ uri: "https://datasets-server.huggingface.co/assets/daspartho/mrbeast-thumbnails/--/default/train/24/image/image.jpg" }} className='h-52 w-full rounded-lg' />
+            </TouchableOpacity>
+          </View>
+          <View>
+            <TouchableOpacity className='py-2 items-center' onPress={() => navigation.navigate("VideoPlayer")}>
+              <Image source={{ uri: "https://datasets-server.huggingface.co/assets/daspartho/mrbeast-thumbnails/--/default/train/24/image/image.jpg" }} className='h-52 w-full rounded-lg' />
+            </TouchableOpacity>
+          </View>
+          <View>
+            <TouchableOpacity className='py-2 items-center' onPress={() => navigation.navigate("VideoPlayer")}>
+              <Image source={{ uri: "https://datasets-server.huggingface.co/assets/daspartho/mrbeast-thumbnails/--/default/train/24/image/image.jpg" }} className='h-52 w-full rounded-lg' />
+            </TouchableOpacity>
+          </View>
+          <View>
+            <TouchableOpacity className='py-2 items-center' onPress={() => navigation.navigate("VideoPlayer")}>
+              <Image source={{ uri: "https://datasets-server.huggingface.co/assets/daspartho/mrbeast-thumbnails/--/default/train/24/image/image.jpg" }} className='h-52 w-full rounded-lg' />
+            </TouchableOpacity>
+          </View>
+          <View>
+            <TouchableOpacity className='py-2 items-center' onPress={() => navigation.navigate("VideoPlayer")}>
+              <Image source={{ uri: "https://datasets-server.huggingface.co/assets/daspartho/mrbeast-thumbnails/--/default/train/24/image/image.jpg" }} className='h-52 w-full rounded-lg' />
+            </TouchableOpacity>
+          </View>
+
         </View>
       </ScrollView>
     </SafeAreaView>

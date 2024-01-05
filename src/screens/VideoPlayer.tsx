@@ -70,7 +70,7 @@ const VideoPlayer = (props: VideoPlayerProps) => {
                     ref={video}
                     className='w-full h-1/2 bg-black'
                     source={{
-                        uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+                        uri: 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3',
                     }}
                     useNativeControls
                     resizeMode={ResizeMode.CONTAIN}
@@ -80,16 +80,16 @@ const VideoPlayer = (props: VideoPlayerProps) => {
             }
             <View className='flex flex-row justify-start items-center w-full p-2 gap-2'>
                 <TouchableOpacity className='w-1/5 bg-slate-400 items-center p-2 rounded-lg'>
-                    <AntDesign name="like1" size={24} color="black" />
+                    <AntDesign name="like1" size={24} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity className='w-1/5 bg-slate-400 items-center p-2 rounded-lg'>
-                    <AntDesign name="dislike1" size={24} color="black" />
+                    <AntDesign name="dislike1" size={24} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity className='w-1/5 bg-slate-400 items-center p-2 rounded-lg'>
-                    <FontAwesome name="share" size={24} color="black" />
+                    <FontAwesome name="share" size={24} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity className='w-1/5 bg-slate-400 items-center p-2 rounded-lg'>
-                    <MaterialIcons name="delete" size={24} color="black" />
+                    <MaterialIcons name="delete" size={24} color="white" />
                 </TouchableOpacity>
             </View>
             <View className='p-2'>
