@@ -4,6 +4,7 @@ import Login from './screens/Login';
 import Signup from './screens/Signup';
 import DrawerNavigator from './DrawerNavigator';
 import Profile from './screens/Profile';
+import VideoPlayer from './screens/VideoPlayer';
 
 const RootStack = createNativeStackNavigator();
 
@@ -24,6 +25,7 @@ const RootNavigator = () => {
                 <RootStack.Group>
                     <RootStack.Screen name="DrawerNavigator" children={() => <DrawerNavigator />} />
                     <RootStack.Screen name="Profile" children={() => <Profile onLogout={onLogout} />} />
+                    <RootStack.Screen name="VideoPlayer" children={() => <VideoPlayer url={"https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4"} />} />
                 </RootStack.Group>
             ) : (
                 <RootStack.Group>
