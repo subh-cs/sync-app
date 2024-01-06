@@ -21,7 +21,7 @@ const Profile = (props: ProfileProps) => {
 
   return (
     <View className='flex justify-center items-center h-full'>
-      <Text>Profile {user.firstName}</Text>
+      <Text>Profile {user.emailAddresses[0].emailAddress}</Text>
       <Avatar size={40} uri={user?.imageUrl} onPress={() => null} />
       <TouchableOpacity onPress={() => navigation.navigate("DrawerNavigator")}><Text>Go to playground</Text></TouchableOpacity>
       <TouchableOpacity onPress={() => signOut()}><Text>Logout</Text></TouchableOpacity>

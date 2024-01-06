@@ -3,6 +3,10 @@ import React from 'react'
 import { AntDesign, Entypo, MaterialIcons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 const { useNavigation } = require('@react-navigation/native');
+import Constants from "expo-constants"
+import * as VideoThumbnails from 'expo-video-thumbnails';
+import { supabase } from '../utils/supabase';
+import { useUser } from '@clerk/clerk-expo';
 
 enum UploadStrategy {
   UPLOAD = "UPLOAD",
@@ -61,6 +65,10 @@ const Playground = () => {
   const [videoFile, setVideoFile] = React.useState<File>()
   const [audioFile, setAudioFile] = React.useState<File>()
 
+  const [thumbnail, setThumbnail] = React.useState<string>("")
+
+  const user = useUser();
+
 
   const pickVideo = async () => {
     let result = await DocumentPicker.getDocumentAsync({
@@ -102,8 +110,7 @@ const Playground = () => {
         uri: url,
         type: type,
       })
-    }
-    else if (type === "audio") {
+    } else if (type === "audio") {
       setAudioFile({
         strategy: strategy,
         uri: url,
@@ -199,13 +206,107 @@ const Playground = () => {
     );
   }
 
+  // generate thumbnail
+  const generateThumbnail = async (hostedVideoUrl: string) => {
+    try {
+      const { uri } = await VideoThumbnails.getThumbnailAsync(
+        'http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4',
+        {
+          time: 2000,
+        }
+      );
+      return uri;
+    } catch (e) {
+      console.warn(e);
+      throw e;
+    }
+  };
+
+  const submitHandler = async () => {
+
+    if (!videoFile || !audioFile) {
+      Alert.alert(
+        'Missing files',
+        'Please select both video and audio files',
+        [
+          {
+            text: 'OK',
+            onPress: () => console.log('OK Pressed'),
+            style: 'default',
+          },
+        ],
+        {
+          cancelable: true,
+        },
+      );
+      return;
+    }
+
+    console.log("submitting");
+
+    const SYNC_API_KEY = Constants?.expoConfig?.extra?.syncLabsApiKey;
+    const SYNC_API_ENDPOINT = "https://api.synclabs.so/video";
+
+    console.log(1);
+    // make post api call to sync labs with api key as bearer token
+    const response = await fetch(SYNC_API_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "accept": "application/json",
+        "x-api-key": SYNC_API_KEY,
+
+      },
+      body: JSON.stringify({
+        videoUrl: videoFile?.uri,
+        audioUrl: audioFile?.uri,
+        synergize: false,
+        maxCredits: null,
+        webhookUrl: null
+      }),
+    });
+    console.log(2);
+    const syncApiRes = await response.json();
+    console.log("syncres", syncApiRes)
+    const thumbnailUrl = await generateThumbnail(syncApiRes.original_video_url);
+    console.log("thumbnailUrl", thumbnailUrl);
+    console.log(3);
+    // upload thumbnail to supabase
+    const thumbnailRes = await supabase.storage.from('thumbnails').upload(`${user.user?.emailAddresses[0].emailAddress}/${syncApiRes.id}.png`, thumbnailUrl)
+    console.log("thumbnailRes", thumbnailRes)
+    console.log(4);
+    if (thumbnailRes.error) {
+      console.log(thumbnailRes.error);
+      throw thumbnailRes.error;
+      return;
+    }
+    console.log(5);
+    // get the url from supabase
+    const thumbnailSupabaseUrl = await supabase.storage.from('thumbnails').getPublicUrl(thumbnailRes.data.path);
+    console.log("thumbnailSupabaseUrl", thumbnailSupabaseUrl);
+    console.log(6);
+    // add a row at db
+    const newRowToSupabase = await supabase.from('sync-job').insert(
+      {
+        user_email: user.user?.emailAddresses[0].emailAddress,
+        job_id: syncApiRes.id,
+        thumbnail_url: thumbnailSupabaseUrl.data.publicUrl,
+      }
+    );
+    console.log(7);
+    if (newRowToSupabase.error) {
+      console.log(newRowToSupabase.error);
+      throw newRowToSupabase.error;
+      return;
+    }
+    console.log(8);
+    console.log("new row added to supabase");
+  }
+
   return (
     <SafeAreaView>
       <ScrollView className='flex'>
         <View className='px-2'>
-          {/* <Text className='text-xl font-bold items-start'>lipsync</Text>
-          <Text className='text-sm items-start text-gray-500'>sync any video with any audio to any language</Text>
-          <Text className="flex-grow border-t border-gray-400"></Text> */}
         </View>
 
         <View className='p-2'>
@@ -256,7 +357,7 @@ const Playground = () => {
             <TouchableOpacity onPress={() => setUploadStrategyState(UploadStrategy.YOUTUBE)} style={[uploadStrategyState === UploadStrategy.YOUTUBE ? styles.selectedButton : styles.unselectedButton]} className='p-2 w-1/3 rounded-lg items-center'><Text>youtube</Text></TouchableOpacity>
             <TouchableOpacity onPress={() => setUploadStrategyState(UploadStrategy.OTHER_URL)} style={[uploadStrategyState === UploadStrategy.OTHER_URL ? styles.selectedButton : styles.unselectedButton]} className='p-2 w-1/3 rounded-lg items-center'><Text>other url</Text></TouchableOpacity>
           </View>
-          <TouchableOpacity className='flex flex-row justify-center items-center bg-slate-400 py-4 rounded-lg'><Text className='text-white'>Submit</Text></TouchableOpacity>
+          <TouchableOpacity className='flex flex-row justify-center items-center bg-slate-400 py-4 rounded-lg' onPress={submitHandler}><Text className='text-white'>Submit</Text></TouchableOpacity>
         </View>
         {/* Thumbnail */}
         <View className='px-2'
