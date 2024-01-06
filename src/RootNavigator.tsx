@@ -1,7 +1,6 @@
 import React from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from './screens/Login';
-import SignUp from './screens/SignUp';
 import DrawerNavigator from './DrawerNavigator';
 import Profile from './screens/Profile';
 import VideoPlayer from './screens/VideoPlayer';
@@ -32,7 +31,6 @@ const RootNavigator = () => {
             <SignedOut>
                 <RootStack.Navigator screenOptions={{ headerShown: false }}>
                     <RootStack.Screen name="Login" component={Login} />
-                    <RootStack.Screen name="SignUp" component={SignUp} />
                 </RootStack.Navigator>
             </SignedOut>
         </>
