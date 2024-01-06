@@ -10,10 +10,13 @@
     "ts:check": "tsc"
   },
   "dependencies": {
+    "@clerk/clerk-expo": "^0.19.27",
     "@react-navigation/drawer": "^6.6.6",
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/native-stack": "^6.9.17",
     "expo": "~49.0.15",
+    "expo-av": "~13.4.1",
+    "expo-document-picker": "~11.5.4",
     "expo-status-bar": "~1.6.0",
     "nativewind": "^2.0.11",
     "react": "18.2.0",
@@ -23,8 +26,7 @@
     "react-native-reanimated": "~3.3.0",
     "react-native-safe-area-context": "4.6.3",
     "react-native-screens": "~3.22.0",
-    "expo-document-picker": "~11.5.4",
-    "expo-av": "~13.4.1"
+    "expo-secure-store": "~12.3.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
