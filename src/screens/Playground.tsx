@@ -11,6 +11,7 @@ import * as Crypto from 'expo-crypto';
 import { StatusBar } from 'expo-status-bar';
 import * as FileSystem from 'expo-file-system';
 import { decode } from 'base64-arraybuffer'
+import { ActivityIndicator } from 'react-native-paper';
 
 
 enum UploadStrategy {
@@ -101,6 +102,8 @@ const Playground = () => {
 
   const [videoFile, setVideoFile] = React.useState<IFile>()
   const [audioFile, setAudioFile] = React.useState<IFile>()
+
+  const [uploading, setUploading] = React.useState<boolean>(false);
 
   const user = useUser();
 
@@ -315,9 +318,9 @@ const Playground = () => {
   const generateThumbnail = async (hostedVideoUrl: string) => {
     try {
       const { uri } = await VideoThumbnails.getThumbnailAsync(
-        'http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4',
+        hostedVideoUrl,
         {
-          time: 2000,
+          time: 1000,
         }
       );
       return uri
@@ -348,6 +351,7 @@ const Playground = () => {
     }
 
     console.log("submitting");
+    setUploading(true);
 
     let videoUrlForSyncLabs = "";
     let audioUrlForSyncLabs = "";
@@ -358,7 +362,6 @@ const Playground = () => {
       console.log(`video/${videoFile.uri.slice(-3)}`);
       console.log(2)
       const uploadVideoResFromSupabase = await supabase.storage.from("local").upload(`${user.user?.emailAddresses[0].emailAddress}/video/${videoFile?.name + Crypto.randomUUID()}.mp4`, decode(videoFile.data), {
-        // support all video formats 
         contentType: `video/mp4`
       });
       console.log(3)
@@ -383,7 +386,7 @@ const Playground = () => {
       // console.log(audioFile)
       console.log(7);
       // if strategy is upload, upload to supabase storage and get public url
-      const uploadAudioResFromSupabase = await supabase.storage.from("local").upload(`${user.user?.emailAddresses[0].emailAddress}/audio/${audioFile?.name + Crypto.randomUUID()}.mp4`, decode(audioFile.data), {
+      const uploadAudioResFromSupabase = await supabase.storage.from("local").upload(`${user.user?.emailAddresses[0].emailAddress}/audio/${audioFile?.name + Crypto.randomUUID()}.mp3`, decode(audioFile.data), {
         contentType: `audio/mp3`
       });
       console.log(8);
@@ -406,7 +409,7 @@ const Playground = () => {
     console.log("videoUrlForSyncLabs", videoUrlForSyncLabs);
     console.log("audioUrlForSyncLabs", audioUrlForSyncLabs);
 
-    return;
+    // return;
     const SYNC_API_KEY = Constants?.expoConfig?.extra?.syncLabsApiKey;
     const SYNC_API_ENDPOINT = Constants?.expoConfig?.extra?.syncLabsApiUrl
 
@@ -434,11 +437,28 @@ const Playground = () => {
     const syncApiRes = await response.json();
     console.log("syncres", JSON.stringify(syncApiRes));
 
+    // generate thumbnail
+    const thumbnailUrl = await generateThumbnail(syncApiRes.original_video_url);
+    console.log("thumbnailUrlLocal", thumbnailUrl);
+    const base64Thumbnail = await uriToBase64(thumbnailUrl);
+
+    // upload thumbnail to supabase storage and get public url
+    const uploadThumbnailResFromSupabase = await supabase.storage.from("thumbnails").upload(`${user.user?.emailAddresses[0].emailAddress}/${videoFile?.name + Crypto.randomUUID()}.jpg`, decode(base64Thumbnail), {
+      contentType: `image/jpg`
+    });
+
+    if (uploadThumbnailResFromSupabase.error) throw uploadThumbnailResFromSupabase.error;
+
+    const thumbnailUrlFromSupabase = await supabase.storage.from("thumbnails").getPublicUrl(uploadThumbnailResFromSupabase.data?.path).data.publicUrl;
+    console.log("thumbnailUrlFromSupabase", thumbnailUrlFromSupabase);
+
+    if (!thumbnailUrlFromSupabase) throw new Error("Thumbnail url not found");
+
     const newRowToSupabase = await supabase.from('sync-job').insert(
       {
         job_id: syncApiRes.id,
         user_email: user.user?.emailAddresses[0].emailAddress,
-        original_video_url: syncApiRes.original_video_url, // USED FOR THUMBNAIL
+        thumbnail_url: thumbnailUrlFromSupabase, // USED FOR THUMBNAIL
       }
     ).select();
     console.log("database response", JSON.stringify(newRowToSupabase));
@@ -448,6 +468,10 @@ const Playground = () => {
       throw newRowToSupabase.error;
       return;
     }
+    setUploading(false);
+    clearAudioFile();
+    clearVideoFile();
+
     console.log(8);
     console.log("new row added to supabase");
   }
@@ -495,14 +519,18 @@ const Playground = () => {
             </View>
           </View>
           <View className='flex justify-center items-center h-24 bg-slate-400 rounded-lg'>
-            <UploadComp uploadStrategyState={uploadStrategyState} showAlert={showAlert} pickVideo={pickVideo} pickAudio={pickAudio} />
+            {uploading ? (<View><Text>Uploading in process...</Text></View>) : (<UploadComp uploadStrategyState={uploadStrategyState} showAlert={showAlert} pickVideo={pickVideo} pickAudio={pickAudio} />)}
           </View>
           <View className='flex flex-row justify-evenly items-center py-2 w-full'>
             <TouchableOpacity onPress={() => setUploadStrategyState(UploadStrategy.UPLOAD)} style={[uploadStrategyState === UploadStrategy.UPLOAD ? styles.selectedButton : styles.unselectedButton]} className='p-2 w-1/3 rounded-lg items-center'><Text>upload</Text></TouchableOpacity>
             <TouchableOpacity onPress={() => setUploadStrategyState(UploadStrategy.YOUTUBE)} style={[uploadStrategyState === UploadStrategy.YOUTUBE ? styles.selectedButton : styles.unselectedButton]} className='p-2 w-1/3 rounded-lg items-center'><Text>youtube</Text></TouchableOpacity>
             <TouchableOpacity onPress={() => setUploadStrategyState(UploadStrategy.OTHER_URL)} style={[uploadStrategyState === UploadStrategy.OTHER_URL ? styles.selectedButton : styles.unselectedButton]} className='p-2 w-1/3 rounded-lg items-center'><Text>other url</Text></TouchableOpacity>
           </View>
-          <TouchableOpacity className='flex flex-row justify-center items-center bg-slate-400 py-4 rounded-lg' onPress={submitHandler}><Text className='text-white'>Submit</Text></TouchableOpacity>
+          {uploading ? (
+            <ActivityIndicator animating={true} color="black" />
+          ) : (
+            <TouchableOpacity className='flex flex-row justify-center items-center bg-slate-400 py-4 rounded-lg' onPress={submitHandler}><Text className='text-white'>Submit</Text></TouchableOpacity>
+          )}
         </View>
         {/* Thumbnail */}
         <View className='px-2'
