@@ -9,23 +9,14 @@ import { SignedIn, SignedOut } from "@clerk/clerk-expo";
 const RootStack = createNativeStackNavigator();
 
 const RootNavigator = () => {
-    const [isSignedIn, setIsSignedIn] = React.useState(true);
-
-    const onLogout = () => {
-        setIsSignedIn(false);
-    }
-
-    const onLogin = () => {
-        setIsSignedIn(true);
-    }
 
     return (
         <>
             <SignedIn>
                 <RootStack.Navigator screenOptions={{ headerShown: false }}>
-                    <RootStack.Screen name="DrawerNavigator" children={() => <DrawerNavigator />} />
-                    <RootStack.Screen name="Profile" children={() => <Profile onLogout={onLogout} />} />
-                    <RootStack.Screen name="VideoPlayer" children={() => <VideoPlayer url={"https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4"} />} />
+                    <RootStack.Screen name="DrawerNavigator" component={DrawerNavigator} />
+                    <RootStack.Screen name="Profile" component={Profile} />
+                    <RootStack.Screen name="VideoPlayer" component={VideoPlayer} />
                 </RootStack.Navigator>
             </SignedIn>
             <SignedOut>

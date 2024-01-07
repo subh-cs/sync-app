@@ -1,15 +1,12 @@
-import { View, Text, TouchableOpacity, Button } from 'react-native'
+import { View, Text, TouchableOpacity, Button, SafeAreaView } from 'react-native'
 import React from 'react'
 import { useNavigation } from '@react-navigation/native';
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import Avatar from '../components/Avatar';
+import { Appbar } from 'react-native-paper';
 
 
-interface ProfileProps {
-  onLogout(): void
-}
-
-const Profile = (props: ProfileProps) => {
+const Profile = () => {
   const { isLoaded, isSignedIn, user } = useUser();
   const { signOut } = useAuth();
 
@@ -20,12 +17,18 @@ const Profile = (props: ProfileProps) => {
   }
 
   return (
-    <View className='flex justify-center items-center h-full'>
-      <Text>Profile {user.emailAddresses[0].emailAddress}</Text>
-      <Avatar size={40} uri={user?.imageUrl} onPress={() => null} />
-      <TouchableOpacity onPress={() => navigation.navigate("DrawerNavigator")}><Text>Go to playground</Text></TouchableOpacity>
-      <TouchableOpacity onPress={() => signOut()}><Text>Logout</Text></TouchableOpacity>
-    </View>
+    <SafeAreaView className='h-full'>
+      <Appbar.Header>
+        <Appbar.BackAction onPress={() => { navigation.goBack() }} />
+        <Appbar.Content title="Profile" />
+      </Appbar.Header>
+      <View className=''>
+        <Avatar size={40} uri={user?.imageUrl} onPress={() => null} />
+        <Text>{user.emailAddresses[0].emailAddress}</Text>
+        <TouchableOpacity onPress={() => signOut()}><Text>Logout</Text></TouchableOpacity>
+      </View>
+    </SafeAreaView>
+
   )
 }
 

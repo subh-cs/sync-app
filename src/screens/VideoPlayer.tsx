@@ -16,7 +16,7 @@ enum Tab {
     AUDIO = 'audio'
 }
 
-const VideoPlayer = (props: VideoPlayerProps) => {
+const VideoPlayer = () => {
     const navigation = useNavigation();
     const video = React.useRef(null);
     const [status, setStatus] = React.useState({});
