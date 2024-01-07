@@ -1,12 +1,13 @@
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, SafeAreaView, TextInput, Alert } from 'react-native'
 import React from 'react'
-import { AntDesign, Entypo, MaterialIcons } from '@expo/vector-icons';
+import { Entypo, MaterialIcons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 const { useNavigation } = require('@react-navigation/native');
 import Constants from "expo-constants"
 import * as VideoThumbnails from 'expo-video-thumbnails';
 import { supabase } from '../utils/supabase';
 import { useUser } from '@clerk/clerk-expo';
+import * as Crypto from 'expo-crypto';
 
 enum UploadStrategy {
   UPLOAD = "UPLOAD",
@@ -14,11 +15,12 @@ enum UploadStrategy {
   OTHER_URL = "OTHER_URL"
 }
 
-interface File {
+interface IFile {
   strategy?: UploadStrategy;
   uri: string;
   name?: string;
   type: "video" | "audio";
+  file: File;
 }
 
 const UploadComp = ({ uploadStrategyState, showAlert, pickVideo, pickAudio }: { uploadStrategyState: UploadStrategy, showAlert: (url: string, strategy: UploadStrategy) => void, pickVideo: () => void, pickAudio: () => void }) => {
@@ -62,8 +64,8 @@ const Playground = () => {
 
   const [uploadStrategyState, setUploadStrategyState] = React.useState<UploadStrategy>(UploadStrategy.UPLOAD)
 
-  const [videoFile, setVideoFile] = React.useState<File>()
-  const [audioFile, setAudioFile] = React.useState<File>()
+  const [videoFile, setVideoFile] = React.useState<IFile>()
+  const [audioFile, setAudioFile] = React.useState<IFile>()
 
   const [thumbnail, setThumbnail] = React.useState<string>("")
 
@@ -82,7 +84,8 @@ const Playground = () => {
         strategy: UploadStrategy.UPLOAD,
         uri: result.assets[0].uri,
         type: "video",
-        name: result.assets[0].name
+        name: result.assets[0].name,
+        file: result.assets[0].file as File
       });
     }
   }
@@ -97,7 +100,8 @@ const Playground = () => {
         strategy: UploadStrategy.UPLOAD,
         uri: result.assets[0].uri,
         type: "audio",
-        name: result.assets[0].name
+        name: result.assets[0].name,
+        file: result.assets[0].file as File
       });
     }
   }
@@ -109,12 +113,14 @@ const Playground = () => {
         strategy: strategy,
         uri: url,
         type: type,
+        file: new File([], "video")
       })
     } else if (type === "audio") {
       setAudioFile({
         strategy: strategy,
         uri: url,
         type: type,
+        file: new File([], "audio")
       });
     }
   }
@@ -215,7 +221,7 @@ const Playground = () => {
           time: 2000,
         }
       );
-      return uri;
+      return uri
     } catch (e) {
       console.warn(e);
       throw e;
@@ -244,55 +250,52 @@ const Playground = () => {
 
     console.log("submitting");
 
+    if (uploadStrategyState === UploadStrategy.UPLOAD) {
+      // upload video to supabase
+      const uploadVideoResFromSupabase = await supabase.storage.from("local").upload(`${user.user?.emailAddresses[0].emailAddress}/video/${videoFile.name + Crypto.randomUUID()}.mp4`, videoFile.file);
+      // upload audio to supabase
+      const uploadAudioResFromSupabase = await supabase.storage.from("local").upload(`${user.user?.emailAddresses[0].emailAddress}/audio/${videoFile.name + Crypto.randomUUID()}.mp4`, videoFile.file);
+
+      // get video url
+      const videoUrl = await supabase.storage.from("local").getPublicUrl(uploadVideoResFromSupabase.data?.path ?? "");
+      // get audio url
+      const audioUrl = await supabase.storage.from("local").getPublicUrl(uploadAudioResFromSupabase.data?.path ?? "");
+    }
+
     const SYNC_API_KEY = Constants?.expoConfig?.extra?.syncLabsApiKey;
     const SYNC_API_ENDPOINT = "https://api.synclabs.so/video";
 
     console.log(1);
-    // make post api call to sync labs with api key as bearer token
+    console.log("API KEY", SYNC_API_KEY);
+    // make post api call to sync labs with api key as header
     const response = await fetch(SYNC_API_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "accept": "application/json",
+        accept: "application/json",
         "x-api-key": SYNC_API_KEY,
 
       },
       body: JSON.stringify({
-        videoUrl: videoFile?.uri,
-        audioUrl: audioFile?.uri,
-        synergize: false,
-        maxCredits: null,
+        videoUrl: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        audioUrl: "https://samplelib.com/lib/preview/mp3/sample-15s.mp3",
+        synergize: true,
+        maxCredits: 20,
         webhookUrl: null
       }),
     });
     console.log(2);
     const syncApiRes = await response.json();
-    console.log("syncres", syncApiRes)
-    const thumbnailUrl = await generateThumbnail(syncApiRes.original_video_url);
-    console.log("thumbnailUrl", thumbnailUrl);
-    console.log(3);
-    // upload thumbnail to supabase
-    const thumbnailRes = await supabase.storage.from('thumbnails').upload(`${user.user?.emailAddresses[0].emailAddress}/${syncApiRes.id}.png`, thumbnailUrl)
-    console.log("thumbnailRes", thumbnailRes)
-    console.log(4);
-    if (thumbnailRes.error) {
-      console.log(thumbnailRes.error);
-      throw thumbnailRes.error;
-      return;
-    }
-    console.log(5);
-    // get the url from supabase
-    const thumbnailSupabaseUrl = await supabase.storage.from('thumbnails').getPublicUrl(thumbnailRes.data.path);
-    console.log("thumbnailSupabaseUrl", thumbnailSupabaseUrl);
-    console.log(6);
-    // add a row at db
+    console.log("syncres", JSON.stringify(syncApiRes));
+
     const newRowToSupabase = await supabase.from('sync-job').insert(
       {
-        user_email: user.user?.emailAddresses[0].emailAddress,
         job_id: syncApiRes.id,
-        thumbnail_url: thumbnailSupabaseUrl.data.publicUrl,
+        user_email: user.user?.emailAddresses[0].emailAddress,
+        original_video_url: syncApiRes.original_video_url,
       }
-    );
+    ).select();
+    console.log("database response", JSON.stringify(newRowToSupabase));
     console.log(7);
     if (newRowToSupabase.error) {
       console.log(newRowToSupabase.error);
@@ -369,7 +372,7 @@ const Playground = () => {
           </View>
           <View>
             <TouchableOpacity className='py-2 items-center' onPress={() => navigation.navigate("VideoPlayer")}>
-              <Image source={{ uri: "https://datasets-server.huggingface.co/assets/daspartho/mrbeast-thumbnails/--/default/train/24/image/image.jpg" }} className='h-52 w-full rounded-lg' />
+              <Image source={{ uri: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" }} className='h-52 w-full rounded-lg' />
             </TouchableOpacity>
           </View>
           <View>
@@ -387,7 +390,6 @@ const Playground = () => {
               <Image source={{ uri: "https://datasets-server.huggingface.co/assets/daspartho/mrbeast-thumbnails/--/default/train/24/image/image.jpg" }} className='h-52 w-full rounded-lg' />
             </TouchableOpacity>
           </View>
-
         </View>
       </ScrollView>
     </SafeAreaView>

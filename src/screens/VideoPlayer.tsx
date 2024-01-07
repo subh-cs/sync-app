@@ -44,7 +44,7 @@ const VideoPlayer = (props: VideoPlayerProps) => {
                     ref={video}
                     className='w-full h-1/2 bg-black'
                     source={{
-                        uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                        uri: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
                     }}
                     useNativeControls
                     resizeMode={ResizeMode.CONTAIN}
