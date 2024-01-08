@@ -9,13 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Image, TouchableOpacity, View } from 'react-native';
 import { useUser } from '@clerk/clerk-expo';
-
-interface Job {
-  created_at: string;
-  job_id: string;
-  thumbnail_url: string;
-  user_email: string;
-}
+import { IJob } from './RootNavigator';
 
 const DrawerStack = createDrawerNavigator();
 
@@ -24,7 +18,8 @@ type Props = {
 };
 
 interface DrawerNavigationProps {
-  allJobs?: Job[];
+  allJobs?: IJob[];
+  addJobToAllJobs: (job: IJob) => void;
 }
 
 const LeftHeader = ({ navigation }: Props) => {
@@ -64,7 +59,7 @@ const DrawerNavigator = (props: DrawerNavigationProps) => {
         headerTitle: ''
       })}
     >
-      <DrawerStack.Screen name="Playground" children={()=> <Playground allJobs={props.allJobs}/>} />
+      <DrawerStack.Screen name="Playground" children={()=> <Playground allJobs={props.allJobs} addJobToAllJobs={props.addJobToAllJobs}/>} />
       <DrawerStack.Screen name="Subscription" component={Subscription} />
       <DrawerStack.Screen name="Usage" component={Usage} />
       <DrawerStack.Screen name="ApiKey" component={ApiKey} />

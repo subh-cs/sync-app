@@ -11,7 +11,7 @@ import { supabase } from './utils/supabase';
 
 const RootStack = createNativeStackNavigator();
 
-interface Job {
+export interface IJob {
     created_at: string;
     job_id: string;
     thumbnail_url: string;
@@ -21,7 +21,7 @@ interface Job {
 
 const RootNavigator = () => {
     const user = useUser();
-    const [allJobs, setAllJobs] = React.useState<Job[]>();
+    const [allJobs, setAllJobs] = React.useState<IJob[]>();
     const userEmailAddress = user.user?.emailAddresses[0].emailAddress;
 
     async function getAllJobs() {
@@ -30,22 +30,30 @@ const RootNavigator = () => {
             .select('*')
             .eq('user_email', userEmailAddress);
         console.log("allJobsFromDB", resFromDb.data);
-        const data = resFromDb.data?.reverse() as Job[];
+        const data = resFromDb.data?.reverse() as IJob[];
         setAllJobs(data);
     }
+
+    // add latest job to top of allJobs
+    function addJobToAllJobs(job: IJob) {
+        setAllJobs((prevAllJobs) => {
+            return [job, ...prevAllJobs!];
+        })
+    }
+
 
     useEffect(() => {
         console.log("RootNavigator.tsx", user.user?.emailAddresses[0].emailAddress)
         if (user.isLoaded) {
             getAllJobs();
         }
-    }, [user.isLoaded])
+    }, [user.isLoaded, user.isSignedIn])
 
     return (
         <>
             <SignedIn>
                 <RootStack.Navigator screenOptions={{ headerShown: false }}>
-                    <RootStack.Screen name="DrawerNavigator" children={() => <DrawerNavigator allJobs={allJobs} />} />
+                    <RootStack.Screen name="DrawerNavigator" children={() => <DrawerNavigator allJobs={allJobs} addJobToAllJobs={addJobToAllJobs} />} />
                     <RootStack.Screen name="Profile" component={Profile} />
                     <RootStack.Screen name="VideoGallery" children={() => <VideoGallery allJobs={allJobs} />} />
                     <RootStack.Screen name="VideoPlayer" component={VideoPlayer} />

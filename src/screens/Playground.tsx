@@ -12,7 +12,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as FileSystem from 'expo-file-system';
 import { decode } from 'base64-arraybuffer'
 import { ActivityIndicator } from 'react-native-paper';
-
+import { IJob } from '../RootNavigator';
 
 enum UploadStrategy {
   UPLOAD = "UPLOAD",
@@ -28,15 +28,10 @@ interface IFile {
   data: string;
 }
 
-interface Job {
-  created_at?: string;
-  job_id: string;
-  thumbnail_url: string;
-  user_email: string;
-}
 
 interface PlaygroundProps {
-  allJobs?: Job[];
+  allJobs?: IJob[];
+  addJobToAllJobs: (job: IJob) => void;
 }
 
 const uriToBase64 = async (uri: string) => {
@@ -108,7 +103,6 @@ const UploadComp = ({ uploadStrategyState, showAlert, pickVideo, pickAudio }: { 
 
 const Playground = (props: PlaygroundProps) => {
   const navigation = useNavigation();
-  const [jobState, setJobState] = useState<Job[]>()
 
   const [uploadStrategyState, setUploadStrategyState] = React.useState<UploadStrategy>(UploadStrategy.UPLOAD)
 
@@ -484,24 +478,22 @@ const Playground = (props: PlaygroundProps) => {
     setAudioFile(undefined);
     setVideoFile(undefined);
 
-    const latestJob: Job = {
+    const latestJob: IJob = {
       job_id: syncApiRes.id,
       thumbnail_url: thumbnailUrlFromSupabase,
-      user_email: user.user?.emailAddresses[0].emailAddress ?? ""
+      user_email: user.user?.emailAddresses[0].emailAddress ?? "",
+      created_at: new Date().toISOString(),
     }
 
-    setJobState(prev => {
-      prev!.push(latestJob); 
-      return prev;
-    });
+    await props.addJobToAllJobs?.(latestJob);
 
     console.log(8);
     console.log("new row added to supabase");
   }
 
-  useEffect(() => {
-    setJobState(props.allJobs ?? []);
-  }, [jobState])
+  // useEffect(() => {
+  //   setJobState(props.allJobs ?? []);
+  // }, [jobState])
 
 
   return (
@@ -566,7 +558,7 @@ const Playground = (props: PlaygroundProps) => {
           <View className='flex flex-row justify-between items-center py-2'><Text>Latest Videos</Text><TouchableOpacity className='flex flex-row justify-between items-center gap-2' onPress={() => navigation.navigate("VideoGallery")}><Text>More</Text><AntDesign name="arrowright" size={24} color="black" /></TouchableOpacity></View>
           {/* map over only two jobs */}
 
-          {jobState?.map((job, index) => (
+          {props.allJobs?.map((job, index) => (
             <TouchableOpacity key={index} className='py-2 items-center' onPress={() => navigation.navigate("VideoPlayer", { job_id: job.job_id })}>
               <Image source={{ uri: job.thumbnail_url }} className='h-52 w-full rounded-lg' />
             </TouchableOpacity>

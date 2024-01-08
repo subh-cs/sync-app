@@ -31,9 +31,6 @@ const VideoGallery = (props: VideoGalleryProps) => {
                         </TouchableOpacity>
                     )
                 })}
-                <TouchableOpacity className='p-2 items-center' onPress={() => navigation.navigate("VideoPlayer")}>
-                    <Image source={{ uri: "https://datasets-server.huggingface.co/assets/daspartho/mrbeast-thumbnails/--/default/train/24/image/image.jpg" }} className='h-52 w-full rounded-lg' />
-                </TouchableOpacity>
             </ScrollView>
         </SafeAreaView>
     )
