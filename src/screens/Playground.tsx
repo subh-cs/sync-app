@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, SafeAreaView, TextInput, Alert } from 'react-native'
 import React from 'react'
-import { Entypo, MaterialIcons } from '@expo/vector-icons';
+import { Entypo, MaterialIcons, AntDesign } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 const { useNavigation } = require('@react-navigation/native');
 import Constants from "expo-constants"
@@ -469,8 +469,8 @@ const Playground = () => {
       return;
     }
     setUploading(false);
-    clearAudioFile();
-    clearVideoFile();
+    setAudioFile(undefined);
+    setVideoFile(undefined);
 
     console.log(8);
     console.log("new row added to supabase");
@@ -535,6 +535,7 @@ const Playground = () => {
         {/* Thumbnail */}
         <View className='px-2'
         >
+          <View className='flex flex-row justify-between items-center py-2'><Text>Latest Videos</Text><TouchableOpacity className='flex flex-row justify-between items-center gap-2' onPress={() => navigation.navigate("VideoGallery")}><Text>More</Text><AntDesign name="arrowright" size={24} color="black" /></TouchableOpacity></View>
           <TouchableOpacity className='py-2 items-center' onPress={() => navigation.navigate("VideoPlayer")}>
             <Image source={{ uri: "https://datasets-server.huggingface.co/assets/daspartho/mrbeast-thumbnails/--/default/train/24/image/image.jpg" }} className='h-52 w-full rounded-lg' />
           </TouchableOpacity>
