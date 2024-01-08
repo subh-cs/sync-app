@@ -24,9 +24,9 @@ const VideoGallery = (props: VideoGalleryProps) => {
                 <Appbar.Content title="Videos" />
             </Appbar.Header>
             <ScrollView>
-                {props.allJobs?.map((job: Job) => {
+                {props.allJobs?.map((job: Job, index) => {
                     return (
-                        <TouchableOpacity className='p-2 items-center' onPress={() => navigation.navigate("VideoPlayer", { job_id: job.job_id })}>
+                        <TouchableOpacity className='p-2 items-center' onPress={() => navigation.navigate("VideoPlayer", { job_id: job.job_id })} key={index}>
                             <Image source={{ uri: job.thumbnail_url }} className='h-52 w-full rounded-lg' />
                         </TouchableOpacity>
                     )

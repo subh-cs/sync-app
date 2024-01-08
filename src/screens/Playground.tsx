@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, SafeAreaView, TextInput, Alert } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Entypo, MaterialIcons, AntDesign } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 const { useNavigation } = require('@react-navigation/native');
@@ -26,6 +26,17 @@ interface IFile {
   name?: string;
   type: "video" | "audio";
   data: string;
+}
+
+interface Job {
+  created_at?: string;
+  job_id: string;
+  thumbnail_url: string;
+  user_email: string;
+}
+
+interface PlaygroundProps {
+  allJobs?: Job[];
 }
 
 const uriToBase64 = async (uri: string) => {
@@ -95,8 +106,9 @@ const UploadComp = ({ uploadStrategyState, showAlert, pickVideo, pickAudio }: { 
   }
 }
 
-const Playground = () => {
+const Playground = (props: PlaygroundProps) => {
   const navigation = useNavigation();
+  const [jobState, setJobState] = useState<Job[]>()
 
   const [uploadStrategyState, setUploadStrategyState] = React.useState<UploadStrategy>(UploadStrategy.UPLOAD)
 
@@ -472,9 +484,25 @@ const Playground = () => {
     setAudioFile(undefined);
     setVideoFile(undefined);
 
+    const latestJob: Job = {
+      job_id: syncApiRes.id,
+      thumbnail_url: thumbnailUrlFromSupabase,
+      user_email: user.user?.emailAddresses[0].emailAddress ?? ""
+    }
+
+    setJobState(prev => {
+      prev!.push(latestJob); 
+      return prev;
+    });
+
     console.log(8);
     console.log("new row added to supabase");
   }
+
+  useEffect(() => {
+    setJobState(props.allJobs ?? []);
+  }, [jobState])
+
 
   return (
     <SafeAreaView>
@@ -536,9 +564,13 @@ const Playground = () => {
         <View className='px-2'
         >
           <View className='flex flex-row justify-between items-center py-2'><Text>Latest Videos</Text><TouchableOpacity className='flex flex-row justify-between items-center gap-2' onPress={() => navigation.navigate("VideoGallery")}><Text>More</Text><AntDesign name="arrowright" size={24} color="black" /></TouchableOpacity></View>
-          <TouchableOpacity className='py-2 items-center' onPress={() => navigation.navigate("VideoPlayer")}>
-            <Image source={{ uri: "https://datasets-server.huggingface.co/assets/daspartho/mrbeast-thumbnails/--/default/train/24/image/image.jpg" }} className='h-52 w-full rounded-lg' />
-          </TouchableOpacity>
+          {/* map over only two jobs */}
+
+          {jobState?.map((job, index) => (
+            <TouchableOpacity key={index} className='py-2 items-center' onPress={() => navigation.navigate("VideoPlayer", { job_id: job.job_id })}>
+              <Image source={{ uri: job.thumbnail_url }} className='h-52 w-full rounded-lg' />
+            </TouchableOpacity>
+          ))}
         </View>
       </ScrollView>
       <StatusBar style="light" />

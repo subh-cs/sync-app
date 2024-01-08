@@ -36,7 +36,7 @@ const RootNavigator = () => {
 
     useEffect(() => {
         console.log("RootNavigator.tsx", user.user?.emailAddresses[0].emailAddress)
-        if(user.isLoaded){
+        if (user.isLoaded) {
             getAllJobs();
         }
     }, [user.isLoaded])
@@ -45,7 +45,7 @@ const RootNavigator = () => {
         <>
             <SignedIn>
                 <RootStack.Navigator screenOptions={{ headerShown: false }}>
-                    <RootStack.Screen name="DrawerNavigator" component={DrawerNavigator} />
+                    <RootStack.Screen name="DrawerNavigator" children={() => <DrawerNavigator allJobs={allJobs} />} />
                     <RootStack.Screen name="Profile" component={Profile} />
                     <RootStack.Screen name="VideoGallery" children={() => <VideoGallery allJobs={allJobs} />} />
                     <RootStack.Screen name="VideoPlayer" component={VideoPlayer} />
