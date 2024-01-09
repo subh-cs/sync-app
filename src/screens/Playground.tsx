@@ -13,6 +13,7 @@ import * as FileSystem from 'expo-file-system';
 import { decode } from 'base64-arraybuffer'
 import { ActivityIndicator } from 'react-native-paper';
 import { IJob } from '../../utils/interfaces';
+import { ProgressBar, MD2Colors } from 'react-native-paper';
 
 enum UploadStrategy {
   UPLOAD = "UPLOAD",
@@ -104,14 +105,13 @@ const UploadComp = ({ uploadStrategyState, showAlert, pickVideo, pickAudio }: { 
 const Playground = (props: PlaygroundProps) => {
   const navigation = useNavigation();
 
-  const dummy = true;
-
   const [uploadStrategyState, setUploadStrategyState] = React.useState<UploadStrategy>(UploadStrategy.UPLOAD)
 
   const [videoFile, setVideoFile] = React.useState<IFile>()
   const [audioFile, setAudioFile] = React.useState<IFile>()
 
   const [uploading, setUploading] = React.useState<boolean>(false);
+  const [progress, setProgress] = React.useState<number>(0);
 
   const user = useUser();
 
@@ -363,6 +363,7 @@ const Playground = (props: PlaygroundProps) => {
 
     let videoUrlForSyncLabs = "";
     let audioUrlForSyncLabs = "";
+    setProgress(0)
     // video 
     console.log(1);
     if (videoFile.strategy === UploadStrategy.UPLOAD) {
@@ -388,6 +389,8 @@ const Playground = (props: PlaygroundProps) => {
       // if strategy is other url, use the url as it is
       videoUrlForSyncLabs = videoFile.uri
     }
+    // video done 
+    setProgress(0.1)
     // audio
     console.log(6);
     if (audioFile.strategy === UploadStrategy.UPLOAD) {
@@ -413,6 +416,7 @@ const Playground = (props: PlaygroundProps) => {
       // if strategy is other url, use the url as it is
       audioUrlForSyncLabs = audioFile.uri
     }
+    setProgress(0.2)
     console.log(11);
     console.log("videoUrlForSyncLabs", videoUrlForSyncLabs);
     console.log("audioUrlForSyncLabs", audioUrlForSyncLabs);
@@ -442,24 +446,27 @@ const Playground = (props: PlaygroundProps) => {
     });
     if (!response.ok) throw new Error("Sync labs api call failed");
     console.log(2);
+    setProgress(0.3)
     const syncApiRes = await response.json();
+    setProgress(0.4)
     console.log("syncres", JSON.stringify(syncApiRes));
 
     // generate thumbnail
     const thumbnailUrl = await generateThumbnail(syncApiRes.original_video_url);
+    setProgress(0.5)
     console.log("thumbnailUrlLocal", thumbnailUrl);
     const base64Thumbnail = await uriToBase64(thumbnailUrl);
-
+    setProgress(0.6)
     // upload thumbnail to supabase storage and get public url
     const uploadThumbnailResFromSupabase = await supabase.storage.from("thumbnails").upload(`${user.user?.emailAddresses[0].emailAddress}/${videoFile?.name + Crypto.randomUUID()}.jpg`, decode(base64Thumbnail), {
       contentType: `image/jpg`
     });
-
+    setProgress(0.7)
     if (uploadThumbnailResFromSupabase.error) throw uploadThumbnailResFromSupabase.error;
 
     const thumbnailUrlFromSupabase = await supabase.storage.from("thumbnails").getPublicUrl(uploadThumbnailResFromSupabase.data?.path).data.publicUrl;
     console.log("thumbnailUrlFromSupabase", thumbnailUrlFromSupabase);
-
+    setProgress(0.8)
     if (!thumbnailUrlFromSupabase) throw new Error("Thumbnail url not found");
 
     const newRowToSupabase = await supabase.from('sync-job').insert(
@@ -475,6 +482,7 @@ const Playground = (props: PlaygroundProps) => {
       console.log(newRowToSupabase.error);
       throw newRowToSupabase.error;
     }
+    setProgress(0.9)
     setUploading(false);
     setAudioFile(undefined);
     setVideoFile(undefined);
@@ -490,6 +498,7 @@ const Playground = (props: PlaygroundProps) => {
 
     console.log(8);
     console.log("new row added to supabase");
+    setProgress(1)
   }
 
   return (
@@ -534,12 +543,12 @@ const Playground = (props: PlaygroundProps) => {
               </View>
             </View>
           </View>
-          <View className="flex-grow border-t border-gray-400"></View>
+          <View className="flex-grow border-t border-gray-900"></View>
           <View className='flex justify-center items-center h-24 bg-black rounded-lg'>
             {uploading ? (
               <View className='flex justify-center items-center'>
                 <Text className='text-white'>Uploading in progress...</Text>
-                <Text className='text-white'>(don't close the app)</Text>
+                <ProgressBar progress={progress} color={MD2Colors.white} />
               </View>
             ) : (
               <UploadComp uploadStrategyState={uploadStrategyState} showAlert={showAlert} pickVideo={pickVideo} pickAudio={pickAudio} />
@@ -550,7 +559,7 @@ const Playground = (props: PlaygroundProps) => {
             <TouchableOpacity onPress={() => setUploadStrategyState(UploadStrategy.YOUTUBE)} style={[uploadStrategyState === UploadStrategy.YOUTUBE ? styles.selectedButton : styles.unselectedButton]} className='p-2 w-1/3 rounded-lg items-center'><Text style={[uploadStrategyState === UploadStrategy.YOUTUBE ? styles.selectedButtonText : styles.unselectedButtonText]}>youtube</Text></TouchableOpacity>
             <TouchableOpacity onPress={() => setUploadStrategyState(UploadStrategy.OTHER_URL)} style={[uploadStrategyState === UploadStrategy.OTHER_URL ? styles.selectedButton : styles.unselectedButton]} className='p-2 w-1/3 rounded-lg items-center'><Text style={[uploadStrategyState === UploadStrategy.OTHER_URL ? styles.selectedButtonText : styles.unselectedButtonText]}>other url</Text></TouchableOpacity>
           </View>
-          <TouchableOpacity className='flex flex-row justify-center items-center bg-white py-4 rounded-lg' onPress={submitHandler} disabled={uploading == false}>
+          <TouchableOpacity className='flex flex-row justify-center items-center bg-white py-4 rounded-lg' onPress={submitHandler} disabled={uploading}>
             {uploading ? (<ActivityIndicator animating={true} color="black" />) : (<Text className='text-black'>Submit</Text>)}
           </TouchableOpacity>
         </View>
@@ -565,7 +574,7 @@ const Playground = (props: PlaygroundProps) => {
             </TouchableOpacity>
           </View>
           {/* map over only two jobs */}
-          <View className="flex-grow border-t border-gray-400"></View>
+          <View className="flex-grow border-t border-gray-900"></View>
           {props.allJobs?.map((job, index) => (
             <TouchableOpacity key={index} className='py-2 items-center rounded-lg' onPress={() => navigation.navigate("VideoPlayer", { job_id: job.job_id })}>
               <ImageBackground source={{ uri: job.thumbnail_url }} className='h-52 w-full rounded-lg opacity-50 flex justify-center items-center'>
