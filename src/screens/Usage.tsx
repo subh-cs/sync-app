@@ -3,7 +3,7 @@ import React from 'react'
 
 const Usage = () => {
   return (
-    <View>
+    <View className='flex justify-center items-center h-full'>
       <Text>Usage</Text>
     </View>
   )

@@ -1,5 +1,5 @@
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, SafeAreaView, TextInput, Alert, ImageBackground } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, SafeAreaView, TextInput, Alert, ImageBackground } from 'react-native'
+import React from 'react'
 import { Entypo, MaterialIcons, AntDesign } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 const { useNavigation } = require('@react-navigation/native');
@@ -13,7 +13,6 @@ import * as FileSystem from 'expo-file-system';
 import { decode } from 'base64-arraybuffer'
 import { ActivityIndicator } from 'react-native-paper';
 import { IJob } from '../../utils/interfaces';
-import { ProgressBar, MD2Colors } from 'react-native-paper';
 
 enum UploadStrategy {
   UPLOAD = "UPLOAD",
@@ -548,7 +547,6 @@ const Playground = (props: PlaygroundProps) => {
             {uploading ? (
               <View className='flex justify-center items-center'>
                 <Text className='text-white'>Uploading in progress...</Text>
-                <ProgressBar progress={progress} color={MD2Colors.white} />
               </View>
             ) : (
               <UploadComp uploadStrategyState={uploadStrategyState} showAlert={showAlert} pickVideo={pickVideo} pickAudio={pickAudio} />

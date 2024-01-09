@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Button, SafeAreaView } from 'react-native'
+import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native'
 import React from 'react'
 import { useNavigation } from '@react-navigation/native';
 import { useAuth, useUser } from "@clerk/clerk-expo";

@@ -1,6 +1,6 @@
 import React from "react";
 import * as WebBrowser from "expo-web-browser";
-import { Button, SafeAreaView, View, Image, Text, TouchableOpacity } from "react-native";
+import { SafeAreaView, View, Image, Text, TouchableOpacity } from "react-native";
 import { useOAuth } from "@clerk/clerk-expo";
 import { useWarmUpBrowser } from "../hooks/warmBrowser";
 import { AntDesign } from '@expo/vector-icons';

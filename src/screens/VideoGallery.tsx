@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, TouchableOpacity, Image, ScrollView } from 'react-native'
+import { SafeAreaView, TouchableOpacity, Image, ScrollView } from 'react-native'
 import React from 'react'
 import { Appbar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
