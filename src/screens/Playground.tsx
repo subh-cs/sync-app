@@ -1,18 +1,18 @@
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, SafeAreaView, TextInput, Alert } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, SafeAreaView, TextInput, Alert, ImageBackground } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { Entypo, MaterialIcons, AntDesign } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 const { useNavigation } = require('@react-navigation/native');
 import Constants from "expo-constants"
 import * as VideoThumbnails from 'expo-video-thumbnails';
-import { supabase } from '../utils/supabase';
+import { supabase } from '../../utils/supabase';
 import { useUser } from '@clerk/clerk-expo';
 import * as Crypto from 'expo-crypto';
 import { StatusBar } from 'expo-status-bar';
 import * as FileSystem from 'expo-file-system';
 import { decode } from 'base64-arraybuffer'
 import { ActivityIndicator } from 'react-native-paper';
-import { IJob } from '../RootNavigator';
+import { IJob } from '../../utils/interfaces';
 
 enum UploadStrategy {
   UPLOAD = "UPLOAD",
@@ -72,17 +72,17 @@ const UploadComp = ({ uploadStrategyState, showAlert, pickVideo, pickAudio }: { 
 
   if (uploadStrategyState === UploadStrategy.UPLOAD) {
     return (
-      <View className='w-full flex flex-row justify-evenly items-center h-24 bg-slate-400 rounded-lg'>
+      <View className='w-full flex flex-row justify-evenly items-center h-24 bg-black rounded-lg'>
         <TouchableOpacity className='bg-slate-100 p-2 rounded-lg' onPress={pickVideo}><Text>upload video</Text></TouchableOpacity>
         <TouchableOpacity className='bg-slate-100 p-2 rounded-lg' onPress={pickAudio}><Text>upload audio</Text></TouchableOpacity>
       </View>
     )
   } else if (uploadStrategyState === UploadStrategy.YOUTUBE) {
     return (
-      <View className='flex justify-center items-center h-20 bg-slate-400 rounded-lg w-full'>
-        <Text className='pb-2'>add youtube url</Text>
+      <View className='flex justify-center items-center h-20 bg-black rounded-lg w-full'>
+        <Text className='pb-2 text-white'>add youtube url</Text>
         <View className='w-full h-12 flex flex-row px-2 pb-2 justify-evenly'>
-          <TextInput value={youtubeInputUrl} onChangeText={setYoutubeInputUrl} className='w-4/6 h-full border border-slate-800 rounded-lg p-2' placeholder='add video url' />
+          <TextInput value={youtubeInputUrl} onChangeText={setYoutubeInputUrl} className='w-4/6 h-full border border-slate-400 rounded-lg p-2 text-white' placeholder='add video url' />
           <TouchableOpacity className='w-1/6 h-full bg-neutral-100 border flex justify-center items-center rounded-lg' onPress={() => { showAlert(youtubeInputUrl, UploadStrategy.YOUTUBE); setYoutubeInputUrl("") }}><Text>Add</Text></TouchableOpacity>
         </View>
       </View>
@@ -90,10 +90,10 @@ const UploadComp = ({ uploadStrategyState, showAlert, pickVideo, pickAudio }: { 
   }
   else if (uploadStrategyState === UploadStrategy.OTHER_URL) {
     return (
-      <View className='flex justify-center items-center h-20 bg-slate-400 rounded-lg'>
-        <Text className='pb-2'>add other url</Text>
+      <View className='flex justify-center items-center h-20 bg-black rounded-lg'>
+        <Text className='pb-2 text-white'>add other url</Text>
         <View className='w-full h-12 flex flex-row px-2 pb-2 justify-evenly'>
-          <TextInput value={otherInputUrl} onChangeText={setOtherInputUrl} className='w-4/6 h-full border border-slate-800 rounded-lg p-2' placeholder='s3, dropbox video url' />
+          <TextInput value={otherInputUrl} onChangeText={setOtherInputUrl} className='w-4/6 h-full border border-slate-400 rounded-lg p-2 text-white' placeholder='s3, dropbox video url' />
           <TouchableOpacity className='w-1/6 h-full bg-neutral-100 border flex justify-center items-center rounded-lg' onPress={() => { showAlert(otherInputUrl, UploadStrategy.OTHER_URL); setOtherInputUrl("") }}><Text>Add</Text></TouchableOpacity>
         </View>
       </View>
@@ -103,6 +103,8 @@ const UploadComp = ({ uploadStrategyState, showAlert, pickVideo, pickAudio }: { 
 
 const Playground = (props: PlaygroundProps) => {
   const navigation = useNavigation();
+
+  const dummy = true;
 
   const [uploadStrategyState, setUploadStrategyState] = React.useState<UploadStrategy>(UploadStrategy.UPLOAD)
 
@@ -472,7 +474,6 @@ const Playground = (props: PlaygroundProps) => {
     if (newRowToSupabase.error) {
       console.log(newRowToSupabase.error);
       throw newRowToSupabase.error;
-      return;
     }
     setUploading(false);
     setAudioFile(undefined);
@@ -491,40 +492,35 @@ const Playground = (props: PlaygroundProps) => {
     console.log("new row added to supabase");
   }
 
-  // useEffect(() => {
-  //   setJobState(props.allJobs ?? []);
-  // }, [jobState])
-
-
   return (
-    <SafeAreaView>
+    <SafeAreaView className='bg-black'>
       <ScrollView className='flex'>
         <View className='p-2'>
           <View className=''>
             <View>
-              <Text className="font-bold text-base border-b-0">videofile</Text>
+              <Text className="font-bold text-base border-b-0 text-white">videofile</Text>
               <View className='flex flex-row justify-between items-center h-12'>
                 {videoFile ? (<View className='flex flex-row justify-between items-center'>
-                  <TouchableOpacity><Entypo name="video" size={30} color="black" /></TouchableOpacity>
-                  <Text className='px-2'>
+                  <TouchableOpacity><Entypo name="video" size={30} color="white" /></TouchableOpacity>
+                  <Text className='px-2 text-white'>
                     {
                       videoFile.name ? videoFile.name.slice(0, 30) :
                         videoFile.uri.slice(0, 30)
                     }
                   </Text>
                 </View>) : (
-                  <Text>No videoFile selected (required*)</Text>
+                  <Text className='text-white'>No videoFile selected (required*)</Text>
                 )}
-                {videoFile && <TouchableOpacity className='bg-red-400 rounded-full' onPress={clearVideoFile}><MaterialIcons name="cancel" size={24} color="white" /></TouchableOpacity>}
+                {videoFile && <TouchableOpacity className='bg-red-400 rounded-full' onPress={() => uploading ? null : clearVideoFile()}><MaterialIcons name="cancel" size={24} color="white" /></TouchableOpacity>}
               </View>
             </View>
             <View >
-              <Text className="font-bold text-base">audiofile</Text>
+              <Text className="font-bold text-base text-white">audiofile</Text>
               <View className='flex flex-row justify-between items-center h-12'>
 
                 {audioFile ? (<View className='flex flex-row justify-between items-center'>
-                  <TouchableOpacity><MaterialIcons name="audiotrack" size={30} color="black" /></TouchableOpacity>
-                  <Text className='px-2'>
+                  <TouchableOpacity><MaterialIcons name="audiotrack" size={30} color="white" /></TouchableOpacity>
+                  <Text className='px-2 text-white'>
                     {/* only render 15 words */}
                     {
                       audioFile.name ? audioFile.name.slice(0, 30) :
@@ -532,35 +528,49 @@ const Playground = (props: PlaygroundProps) => {
                     }
                   </Text>
                 </View>) : (
-                  <Text>No audioFile selected (required*)</Text>
+                  <Text className='text-white'>No audioFile selected (required*)</Text>
                 )}
-                {audioFile && <TouchableOpacity className='bg-red-400 rounded-full' onPress={clearAudioFile}><MaterialIcons name="cancel" size={24} color="white" /></TouchableOpacity>}
+                {audioFile && <TouchableOpacity className='bg-red-400 rounded-full' onPress={() => uploading ? null : clearAudioFile()}><MaterialIcons name="cancel" size={24} color="white" /></TouchableOpacity>}
               </View>
             </View>
           </View>
-          <View className='flex justify-center items-center h-24 bg-slate-400 rounded-lg'>
-            {uploading ? (<View><Text>Uploading in process...</Text></View>) : (<UploadComp uploadStrategyState={uploadStrategyState} showAlert={showAlert} pickVideo={pickVideo} pickAudio={pickAudio} />)}
+          <View className="flex-grow border-t border-gray-400"></View>
+          <View className='flex justify-center items-center h-24 bg-black rounded-lg'>
+            {uploading ? (
+              <View className='flex justify-center items-center'>
+                <Text className='text-white'>Uploading in progress...</Text>
+                <Text className='text-white'>(don't close the app)</Text>
+              </View>
+            ) : (
+              <UploadComp uploadStrategyState={uploadStrategyState} showAlert={showAlert} pickVideo={pickVideo} pickAudio={pickAudio} />
+            )}
           </View>
           <View className='flex flex-row justify-evenly items-center py-2 w-full'>
-            <TouchableOpacity onPress={() => setUploadStrategyState(UploadStrategy.UPLOAD)} style={[uploadStrategyState === UploadStrategy.UPLOAD ? styles.selectedButton : styles.unselectedButton]} className='p-2 w-1/3 rounded-lg items-center'><Text>upload</Text></TouchableOpacity>
-            <TouchableOpacity onPress={() => setUploadStrategyState(UploadStrategy.YOUTUBE)} style={[uploadStrategyState === UploadStrategy.YOUTUBE ? styles.selectedButton : styles.unselectedButton]} className='p-2 w-1/3 rounded-lg items-center'><Text>youtube</Text></TouchableOpacity>
-            <TouchableOpacity onPress={() => setUploadStrategyState(UploadStrategy.OTHER_URL)} style={[uploadStrategyState === UploadStrategy.OTHER_URL ? styles.selectedButton : styles.unselectedButton]} className='p-2 w-1/3 rounded-lg items-center'><Text>other url</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => setUploadStrategyState(UploadStrategy.UPLOAD)} style={[uploadStrategyState === UploadStrategy.UPLOAD ? styles.selectedButton : styles.unselectedButton]} className='p-2 w-1/3 rounded-lg items-center'><Text style={[uploadStrategyState === UploadStrategy.UPLOAD ? styles.selectedButtonText : styles.unselectedButtonText]}>upload</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => setUploadStrategyState(UploadStrategy.YOUTUBE)} style={[uploadStrategyState === UploadStrategy.YOUTUBE ? styles.selectedButton : styles.unselectedButton]} className='p-2 w-1/3 rounded-lg items-center'><Text style={[uploadStrategyState === UploadStrategy.YOUTUBE ? styles.selectedButtonText : styles.unselectedButtonText]}>youtube</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => setUploadStrategyState(UploadStrategy.OTHER_URL)} style={[uploadStrategyState === UploadStrategy.OTHER_URL ? styles.selectedButton : styles.unselectedButton]} className='p-2 w-1/3 rounded-lg items-center'><Text style={[uploadStrategyState === UploadStrategy.OTHER_URL ? styles.selectedButtonText : styles.unselectedButtonText]}>other url</Text></TouchableOpacity>
           </View>
-          {uploading ? (
-            <ActivityIndicator animating={true} color="black" />
-          ) : (
-            <TouchableOpacity className='flex flex-row justify-center items-center bg-slate-400 py-4 rounded-lg' onPress={submitHandler}><Text className='text-white'>Submit</Text></TouchableOpacity>
-          )}
+          <TouchableOpacity className='flex flex-row justify-center items-center bg-white py-4 rounded-lg' onPress={submitHandler} disabled={uploading == false}>
+            {uploading ? (<ActivityIndicator animating={true} color="black" />) : (<Text className='text-black'>Submit</Text>)}
+          </TouchableOpacity>
         </View>
         {/* Thumbnail */}
         <View className='px-2'
         >
-          <View className='flex flex-row justify-between items-center py-2'><Text>Latest Videos</Text><TouchableOpacity className='flex flex-row justify-between items-center gap-2' onPress={() => navigation.navigate("VideoGallery")}><Text>More</Text><AntDesign name="arrowright" size={24} color="black" /></TouchableOpacity></View>
+          <View className='flex flex-row justify-between items-center py-2'>
+            <Text className='text-white text-lg'>Latest Videos</Text>
+            <TouchableOpacity className='flex flex-row justify-between items-center gap-2' onPress={() => navigation.navigate("VideoGallery")}>
+              <Text className='text-white'>More</Text>
+              <AntDesign name="arrowright" size={32} color="white" />
+            </TouchableOpacity>
+          </View>
           {/* map over only two jobs */}
-
+          <View className="flex-grow border-t border-gray-400"></View>
           {props.allJobs?.map((job, index) => (
-            <TouchableOpacity key={index} className='py-2 items-center' onPress={() => navigation.navigate("VideoPlayer", { job_id: job.job_id })}>
-              <Image source={{ uri: job.thumbnail_url }} className='h-52 w-full rounded-lg' />
+            <TouchableOpacity key={index} className='py-2 items-center rounded-lg' onPress={() => navigation.navigate("VideoPlayer", { job_id: job.job_id })}>
+              <ImageBackground source={{ uri: job.thumbnail_url }} className='h-52 w-full rounded-lg opacity-50 flex justify-center items-center'>
+                <Entypo name="controller-play" size={60} color="white" />
+              </ImageBackground>
             </TouchableOpacity>
           ))}
         </View>
@@ -572,10 +582,17 @@ const Playground = (props: PlaygroundProps) => {
 
 const styles = StyleSheet.create({
   selectedButton: {
-    backgroundColor: "rgb(148 163 184)",
+    backgroundColor: "white",
+  },
+  selectedButtonText: {
+    color: "black",
   },
   unselectedButton: {
+    backgroundColor: "black",
   },
+  unselectedButtonText: {
+    color: "white",
+  }
 });
 
 export default Playground

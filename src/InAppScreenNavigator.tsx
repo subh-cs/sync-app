@@ -5,8 +5,8 @@ import Profile from './screens/Profile';
 import VideoPlayer from './screens/VideoPlayer';
 import VideoGallery from './screens/VideoGallery';
 import { useUser } from '@clerk/clerk-expo';
-import { IJob } from './RootNavigator';
-import { supabase } from './utils/supabase';
+import { IJob } from '../utils/interfaces';
+import { supabase } from '../utils/supabase';
 
 const InAppScreenStack = createNativeStackNavigator();
 

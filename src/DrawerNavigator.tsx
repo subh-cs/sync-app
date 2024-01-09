@@ -3,17 +3,15 @@ import { DrawerNavigationProp, createDrawerNavigator } from '@react-navigation/d
 import Playground from './screens/Playground';
 import Subscription from './screens/Subscription';
 import Usage from './screens/Usage';
-import ApiKey from './screens/ApiKey';
 import Avatar from './components/Avatar';
-import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Image, TouchableOpacity, View } from 'react-native';
 import { useUser } from '@clerk/clerk-expo';
-import { IJob } from './RootNavigator';
+import { IJob } from '../utils/interfaces';
 
 const DrawerStack = createDrawerNavigator();
 
-type Props = {
+type LeftHeaderProps = {
   navigation: DrawerNavigationProp<any>;
 };
 
@@ -22,10 +20,10 @@ interface DrawerNavigationProps {
   addJobToAllJobs: (job: IJob) => void;
 }
 
-const LeftHeader = ({ navigation }: Props) => {
+const LeftHeader = (props: LeftHeaderProps) => {
   return (
     <View className='flex flex-row justify-center items-center pl-2'>
-      <TouchableOpacity onPress={() => navigation.openDrawer()} className='pr-2'><MaterialIcons name="menu" size={24} color="white" /></TouchableOpacity>
+      <TouchableOpacity onPress={() => props.navigation.openDrawer()} className='pr-2'><MaterialIcons name="menu" size={24} color="white" /></TouchableOpacity>
       <Image source={{ uri: "https://app.synclabs.so/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fsync_logo_white.3adfc347.png&w=1080&q=50" }} style={{ width: 75, height: 25 }} />
     </View>
   );
@@ -59,12 +57,10 @@ const DrawerNavigator = (props: DrawerNavigationProps) => {
         headerTitle: ''
       })}
     >
-      <DrawerStack.Screen name="Playground" children={()=> <Playground allJobs={props.allJobs} addJobToAllJobs={props.addJobToAllJobs}/>} />
+      <DrawerStack.Screen name="Playground" children={() => <Playground allJobs={props.allJobs} addJobToAllJobs={props.addJobToAllJobs} />} />
       <DrawerStack.Screen name="Subscription" component={Subscription} />
       <DrawerStack.Screen name="Usage" component={Usage} />
-      <DrawerStack.Screen name="ApiKey" component={ApiKey} />
     </DrawerStack.Navigator>
-
   )
 }
 
