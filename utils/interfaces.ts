@@ -18,3 +18,13 @@ export enum UploadStrategy {
     YOUTUBE = "YOUTUBE",
     OTHER_URL = "OTHER_URL"
 }
+
+export interface ApiResponse {
+    id: string;
+    url: string;
+    original_audio_url: string;
+    original_video_url: string;
+    status: string;
+    synergize: boolean;
+    credits_deducted: number;
+}

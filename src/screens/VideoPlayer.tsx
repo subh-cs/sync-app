@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, Button, SafeAreaView } from 'react-native';
-import { Video, ResizeMode, Audio } from 'expo-av';
+import { View, StyleSheet, TouchableOpacity, Text, SafeAreaView } from 'react-native';
+import { Video, ResizeMode } from 'expo-av';
 import { Appbar } from 'react-native-paper';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
@@ -8,6 +8,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import Constants from "expo-constants"
 import { ActivityIndicator, MD2Colors } from 'react-native-paper';
 import { StatusBar } from 'expo-status-bar';
+import { ApiResponse } from '../../utils/interfaces';
 
 type RootStackParamList = {
   VideoPlayer: {
@@ -25,22 +26,12 @@ enum Tab {
   AUDIO = 'audio'
 }
 
-interface ApiResponse {
-  id: string;
-  url: string;
-  original_audio_url: string;
-  original_video_url: string;
-  status: string;
-  synergize: boolean;
-  credits_deducted: number;
-}
-
 const VideoPlayer: React.FC<VideoPlayerScreenProps> = ({ route }) => {
   const { job_id } = route.params;
   const navigation = useNavigation();
   const [status, setStatus] = React.useState({});
   const [tab, setTab] = React.useState<Tab>(Tab.SYNCED);
-
+  const [videoLoader, setVideoLoader] = React.useState<boolean>();
   const [syncData, setSyncData] = React.useState<ApiResponse>();
 
   const SYNC_API_KEY = Constants?.expoConfig?.extra?.syncLabsApiKey;
@@ -58,11 +49,9 @@ const VideoPlayer: React.FC<VideoPlayerScreenProps> = ({ route }) => {
   }
 
   React.useEffect(() => {
-
     getJobDetails().then((res) => {
       setSyncData(res);
     })
-
   }, [])
 
   return (
@@ -83,52 +72,63 @@ const VideoPlayer: React.FC<VideoPlayerScreenProps> = ({ route }) => {
         </TouchableOpacity>
       </View>
       {tab === Tab.SYNCED &&
-        (syncData?.url ?
+        ((!syncData?.url && syncData?.original_video_url) ?
+          <View className='w-full h-1/3 bg-black flex justify-center items-center'>
+            <ActivityIndicator animating={true} color={MD2Colors.white} />
+            <Text className='pt-2 text-white'>Sync generation is in progress..</Text>
+          </View>
+          :
           <Video
             className='w-full h-1/3 bg-black'
+            onLoadStart={() => setVideoLoader(true)}
+            onLoad={() => setVideoLoader(false)}
             source={{
               uri: syncData?.url ?? ""
             }}
-            onReadyForDisplay={() => console.log("ready")}
             useNativeControls
             shouldPlay
             resizeMode={ResizeMode.CONTAIN}
             onPlaybackStatusUpdate={status => setStatus(() => status)}
           />
-          :
-          <View className='w-full h-1/3 bg-black flex justify-center items-center'>
-            <ActivityIndicator animating={true} color={MD2Colors.white} />
-            <Text className='pt-2 text-white'>Sync generation is in progress..</Text>
-          </View>
         )
       }
       {tab === Tab.VIDEO &&
         <Video
           className='w-full h-1/3 bg-black'
+          onLoadStart={() => setVideoLoader(true)}
+          onLoad={() => setVideoLoader(false)}
           source={{
             uri: syncData?.original_video_url ?? ""
           }}
           useNativeControls
           shouldPlay
           resizeMode={ResizeMode.CONTAIN}
-          onReadyForDisplay={() => console.log("ready")}
           onPlaybackStatusUpdate={status => setStatus(() => status)}
         />
       }
       {tab === Tab.AUDIO &&
         <Video
           className='w-full h-1/3 bg-black'
+          onLoadStart={() => setVideoLoader(true)}
+          onLoad={() => setVideoLoader(false)}
           source={{
             uri: syncData?.original_audio_url ?? ""
           }}
           shouldPlay
           useNativeControls
           resizeMode={ResizeMode.CONTAIN}
-          onReadyForDisplay={() => console.log("ready")}
           onPlaybackStatusUpdate={status => setStatus(() => status)}
         />
       }
-      <Text className='p-2 text-white'>Media will be played automatically</Text>
+      <View className='h-8 flex px-3 w-full'>
+        {videoLoader ?
+          <View className='items-start'>          
+            <ActivityIndicator animating={true} color={MD2Colors.white} size={25} />
+          </View>
+          :
+          <Text className='text-white'>enjoy the video!!</Text>
+        }
+      </View>
       <View className='flex flex-row justify-start items-center w-full p-2 gap-2'>
         <TouchableOpacity className='w-1/5 items-center p-2 rounded-lg border border-white'>
           <AntDesign name="like1" size={24} color="white" />
