@@ -32,7 +32,7 @@ const Profile = () => {
                     <Text className='text-lg font-semibold'>Logout</Text>
                 </TouchableOpacity>
             </View>
-            <StatusBar style="auto" />
+            <StatusBar style="light" />
         </SafeAreaView>
 
     )

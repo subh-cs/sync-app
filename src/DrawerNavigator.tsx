@@ -58,8 +58,9 @@ const DrawerNavigator = (props: DrawerNavigationProps) => {
       })}
     >
       <DrawerStack.Screen name="Playground" children={() => <Playground allJobs={props.allJobs} addJobToAllJobs={props.addJobToAllJobs} />} />
-      <DrawerStack.Screen name="Subscription" component={Subscription} />
-      <DrawerStack.Screen name="Usage" component={Usage} />
+      {/* TODO : will be implemented later when we have automated apiKey generation */}
+      {/*<DrawerStack.Screen name="Subscription" component={Subscription} />
+      <DrawerStack.Screen name="Usage" component={Usage} /> */}
     </DrawerStack.Navigator>
   )
 }

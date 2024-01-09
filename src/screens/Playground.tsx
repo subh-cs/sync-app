@@ -13,21 +13,7 @@ import * as FileSystem from 'expo-file-system';
 import { decode } from 'base64-arraybuffer'
 import { ActivityIndicator } from 'react-native-paper';
 import { IJob } from '../../utils/interfaces';
-
-enum UploadStrategy {
-  UPLOAD = "UPLOAD",
-  YOUTUBE = "YOUTUBE",
-  OTHER_URL = "OTHER_URL"
-}
-
-interface IFile {
-  strategy?: UploadStrategy;
-  uri: string;
-  name?: string;
-  type: "video" | "audio";
-  data: string;
-}
-
+import { IFile, UploadStrategy } from '../../utils/interfaces';
 
 interface PlaygroundProps {
   allJobs?: IJob[];
@@ -501,10 +487,10 @@ const Playground = (props: PlaygroundProps) => {
   }
 
   return (
-    <SafeAreaView className='bg-black'>
-      <ScrollView className='flex'>
+    <SafeAreaView className='bg-black h-full'>
+      <ScrollView className='flex flex-col'>
         <View className='p-2'>
-          <View className=''>
+          <View>
             <View>
               <Text className="font-bold text-base border-b-0 text-white">videofile</Text>
               <View className='flex flex-row justify-between items-center h-12'>
@@ -558,11 +544,11 @@ const Playground = (props: PlaygroundProps) => {
             <TouchableOpacity onPress={() => setUploadStrategyState(UploadStrategy.OTHER_URL)} style={[uploadStrategyState === UploadStrategy.OTHER_URL ? styles.selectedButton : styles.unselectedButton]} className='p-2 w-1/3 rounded-lg items-center'><Text style={[uploadStrategyState === UploadStrategy.OTHER_URL ? styles.selectedButtonText : styles.unselectedButtonText]}>other url</Text></TouchableOpacity>
           </View>
           <TouchableOpacity className='flex flex-row justify-center items-center bg-white py-4 rounded-lg' onPress={submitHandler} disabled={uploading}>
-            {uploading ? (<ActivityIndicator animating={true} color="black" />) : (<Text className='text-black'>Submit</Text>)}
+            {uploading ? (<ActivityIndicator animating={true} color="black" />) : (<Text className='text-black font-semibold'>Submit</Text>)}
           </TouchableOpacity>
         </View>
         {/* Thumbnail */}
-        <View className='px-2'
+        <View className='px-2 bg-black'
         >
           <View className='flex flex-row justify-between items-center py-2'>
             <Text className='text-white text-lg'>Latest Videos</Text>
@@ -573,13 +559,15 @@ const Playground = (props: PlaygroundProps) => {
           </View>
           {/* map over only two jobs */}
           <View className="flex-grow border-t border-gray-900"></View>
-          {props.allJobs?.map((job, index) => (
-            <TouchableOpacity key={index} className='py-2 items-center rounded-lg' onPress={() => navigation.navigate("VideoPlayer", { job_id: job.job_id })}>
-              <ImageBackground source={{ uri: job.thumbnail_url }} className='h-52 w-full rounded-lg opacity-50 flex justify-center items-center'>
+          {props.allJobs?.length === 0 && <Text className='text-white text-center mt-12'>No videos found</Text>}
+          {props.allJobs?.slice(0, 2).map((job, index) => (
+            <TouchableOpacity key={index} className='py-2 items-center rounded-lg bg-black' onPress={() => navigation.navigate("VideoPlayer", { job_id: job.job_id })}>
+              <ImageBackground source={{ uri: job.thumbnail_url }} className='h-52 w-full rounded-lg opacity-50 flex justify-center items-center bg-black'>
                 <Entypo name="controller-play" size={60} color="white" />
               </ImageBackground>
             </TouchableOpacity>
           ))}
+
         </View>
       </ScrollView>
       <StatusBar style="light" />
