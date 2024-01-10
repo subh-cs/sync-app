@@ -3,7 +3,6 @@ import React from 'react'
 import { Entypo, MaterialIcons, AntDesign } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 const { useNavigation } = require('@react-navigation/native');
-import Constants from "expo-constants"
 import * as VideoThumbnails from 'expo-video-thumbnails';
 import { supabase } from '../../utils/supabase';
 import { useUser } from '@clerk/clerk-expo';
@@ -14,6 +13,7 @@ import { decode } from 'base64-arraybuffer'
 import { ActivityIndicator } from 'react-native-paper';
 import { IJob } from '../../utils/interfaces';
 import { IFile, UploadStrategy } from '../../utils/interfaces';
+import env from '../../utils/env';
 
 interface PlaygroundProps {
   allJobs?: IJob[];
@@ -28,7 +28,7 @@ const uriToBase64 = async (uri: string) => {
 const uploadYouTubeToS3 = async (url: string, pathPrefix: string, uploadAs: "video" | "audio") => {
   try {
     const response = await fetch(
-      Constants?.expoConfig?.extra?.youtubeToS3Url,
+      env.AWS_LAMBDA_UPLOAD_YOUTUBE_TO_S3_URL,
       {
         method: "POST",
         body: JSON.stringify({
@@ -406,17 +406,13 @@ const Playground = (props: PlaygroundProps) => {
     console.log("videoUrlForSyncLabs", videoUrlForSyncLabs);
     console.log("audioUrlForSyncLabs", audioUrlForSyncLabs);
 
-    // return;
-    const SYNC_API_KEY = Constants?.expoConfig?.extra?.syncLabsApiKey;
-    const SYNC_API_ENDPOINT = Constants?.expoConfig?.extra?.syncLabsApiUrl
-
     // make post api call to sync labs with api key as header
-    const response = await fetch(SYNC_API_ENDPOINT, {
+    const response = await fetch(env.SYNCLABS_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         accept: "application/json",
-        "x-api-key": SYNC_API_KEY,
+        "x-api-key": env.SYNCLABS_API_KEY,
 
       },
       body: JSON.stringify({

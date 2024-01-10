@@ -16,6 +16,7 @@
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/native-stack": "^6.9.17",
     "@supabase/supabase-js": "^2.39.2",
+    "babel-plugin-transform-inline-environment-variables": "^0.4.4",
     "base64-arraybuffer": "^1.0.2",
     "expo": "~49.0.15",
     "expo-av": "~13.4.1",

@@ -5,10 +5,10 @@ import { Appbar } from 'react-native-paper';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
-import Constants from "expo-constants"
 import { ActivityIndicator, MD2Colors } from 'react-native-paper';
 import { StatusBar } from 'expo-status-bar';
 import { ApiResponse } from '../../utils/interfaces';
+import env from '../../utils/env';
 
 type RootStackParamList = {
   VideoPlayer: {
@@ -34,14 +34,11 @@ const VideoPlayer: React.FC<VideoPlayerScreenProps> = ({ route }) => {
   const [videoLoader, setVideoLoader] = React.useState<boolean>();
   const [syncData, setSyncData] = React.useState<ApiResponse>();
 
-  const SYNC_API_KEY = Constants?.expoConfig?.extra?.syncLabsApiKey;
-  const SYNC_API_ENDPOINT = Constants?.expoConfig?.extra?.syncLabsApiUrl
-
   const getJobDetails = async (): Promise<ApiResponse> => {
-    const resFromSync = await fetch(`${SYNC_API_ENDPOINT}/${job_id}`, {
+    const resFromSync = await fetch(`${env.SYNCLABS_API_URL}/${job_id}`, {
       headers: {
         accept: 'application/json',
-        'x-api-key': SYNC_API_KEY
+        'x-api-key': env.SYNCLABS_API_KEY
       }
     });
     const res = await resFromSync.json();
