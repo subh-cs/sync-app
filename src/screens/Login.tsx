@@ -21,16 +21,18 @@ const Login = () => {
             Alert.alert("Missing fields", "Please enter email and password");
             return;
         }
+
+        const emailAddressNew = emailAddress.toLowerCase().trim();
+        const passwordNew = password.trim();
+
         try {
             const completeSignIn = await signIn.create({
-                identifier: emailAddress,
-                password,
+                identifier: emailAddressNew,
+                password: passwordNew,
             });
-            // This is an important step,
-            // This indicates the user is signed in
             await setActive({ session: completeSignIn.createdSessionId });
         } catch (err: any) {
-            console.log(err);
+            Alert.alert("Error", err.errors[0].message);
         }
     };
 
