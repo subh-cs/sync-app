@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "sync-app",
-    "slug": "sync-app",
+    "name": "sync labs",
+    "slug": "sync-labs",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/synclabs_icon.png",
@@ -11,7 +11,9 @@
       "resizeMode": "cover",
       "backgroundColor": "#000000"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -19,7 +21,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/synclabs_icon.png",
         "backgroundColor": "#000000"
-      }
+      },
+      "package": "com.subh_cs.synclabs"
     },
     "web": {
       "favicon": "./assets/synclabs_icon.png"
@@ -31,6 +34,11 @@
           "iCloudContainerEnvironment": "Production"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "78dca0ba-1fc7-4c05-8544-b8f3bcdb5159"
+      }
+    }
   }
 }
