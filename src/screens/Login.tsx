@@ -13,10 +13,6 @@ const Login = () => {
     const [emailAddress, setEmailAddress] = React.useState("");
     const [password, setPassword] = React.useState("");
 
-    const showAllLoadedEnv = () => {
-        Alert.alert("Loaded env", JSON.stringify(env));
-    }
-
     const onSignInPress = async () => {
         if (!isLoaded) {
             return;
