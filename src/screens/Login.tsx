@@ -1,10 +1,11 @@
 import React from "react";
 import * as WebBrowser from "expo-web-browser";
-import { SafeAreaView, View, Image, Text, TouchableOpacity } from "react-native";
+import { SafeAreaView, View, Image, Text, TouchableOpacity, Alert } from "react-native";
 import { useOAuth } from "@clerk/clerk-expo";
 import { useWarmUpBrowser } from "../hooks/warmBrowser";
 import { AntDesign } from '@expo/vector-icons';
 import { StatusBar } from "expo-status-bar";
+import env from "../../utils/env";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -30,6 +31,10 @@ const Login = () => {
     }
   }, []);
 
+  const showAllLoadedEnv = () => {
+    Alert.alert("Loaded env", JSON.stringify(env));
+}
+
   return (
     <SafeAreaView className="flex justify-center items-center h-full bg-black w-full px-4">
 
@@ -40,7 +45,7 @@ const Login = () => {
       </View>
 
       <TouchableOpacity
-        onPress={onPress}
+        onPress={showAllLoadedEnv}
         className="p-4 bg-white rounded-md flex flex-row justify-center items-center w-full mt-32"
       >
         <AntDesign name="google" size={24} color="black" />
