@@ -1,72 +1,90 @@
-import React from "react";
-import { SafeAreaView, View, Image, Text, TouchableOpacity, TextInput, ScrollView, Alert } from "react-native";
+import React, { useEffect, useState } from "react";
+import * as WebBrowser from "expo-web-browser";
+import { SafeAreaView, View, Image, Text, TouchableOpacity } from "react-native";
+// import { useOAuth } from "@clerk/clerk-expo";
+// import { useWarmUpBrowser } from "../hooks/warmBrowser";
+import { AntDesign } from '@expo/vector-icons';
 import { StatusBar } from "expo-status-bar";
-import env from "../../utils/env";
-import { useSignIn } from "@clerk/clerk-expo";
-import { useNavigation } from "@react-navigation/native";
+import * as Google from "expo-auth-session/providers/google";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
+WebBrowser.maybeCompleteAuthSession();
 
 const Login = () => {
-    const navigation = useNavigation<any>();
-    const { signIn, setActive, isLoaded } = useSignIn();
 
-    const [emailAddress, setEmailAddress] = React.useState("");
-    const [password, setPassword] = React.useState("");
+    const [token, setToken] = useState("");
+    const [userInfo, setUserInfo] = useState(null);
 
-    const onSignInPress = async () => {
-        if (!isLoaded) {
-            return;
+
+    const [request, response, promptAsync] = Google.useAuthRequest({
+        androidClientId: "703565878773-9t9g365fc83ieur7jp7ca7mi92trhr2i.apps.googleusercontent.com"
+    });
+
+
+    useEffect(() => {
+        handleEffect();
+    }, [response, token]);
+
+    async function handleEffect() {
+        const user = await getLocalUser();
+        console.log("user", user);
+        if (!user) {
+            if (response?.type === "success") {
+                setToken(response.authentication?.accessToken ?? '');
+                getUserInfo(response.authentication?.accessToken);
+            }
+        } else {
+            setUserInfo(user);
+            console.log("loaded locally");
         }
-        if (!emailAddress || !password) {
-            Alert.alert("Missing fields", "Please enter email and password");
-            return;
-        }
+    }
 
-        const emailAddressNew = emailAddress.toLowerCase().trim();
-        const passwordNew = password.trim();
+    const getLocalUser = async () => {
+        const data = await AsyncStorage.getItem("@user");
+        if (!data) return null;
+        return JSON.parse(data);
+    };
 
+    const getUserInfo = async (token?: string) => {
+        if (!token) return;
         try {
-            const completeSignIn = await signIn.create({
-                identifier: emailAddressNew,
-                password: passwordNew,
-            });
-            await setActive({ session: completeSignIn.createdSessionId });
-        } catch (err: any) {
-            Alert.alert("Error", err.errors[0].message);
+            const response = await fetch(
+                "https://www.googleapis.com/userinfo/v2/me",
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+
+            const user = await response.json();
+            await AsyncStorage.setItem("@user", JSON.stringify(user));
+            setUserInfo(user);
+        } catch (error) {
+            // Add your own error handler here
+            console.error(error);
+            throw error;
         }
     };
 
-
     return (
-        <SafeAreaView className="h-full w-full px-4 bg-black">
-            <ScrollView className="h-full w-full flex bg-black" contentContainerStyle={{ justifyContent: "center", alignItems: "center", width: "100%" }}>
-                <View className="pt-16">
-                    <Image source={{ uri: "https://app.synclabs.so/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fsync_icon_white.850b8eaa.png&w=3840&q=75" }} className="h-64 w-48"></Image>
-                    <View className="flex flex-row justify-start items-center gap-1 pt-4 mt-4">
-                        <Text className="text-white font-thin text-xl">Welcome to</Text>
-                        <Text className="text-white font-bold text-xl">sync labs.</Text>
-                    </View>
-                </View>
+        <SafeAreaView className="flex justify-center items-center h-full bg-black w-full px-4">
 
-                <View className="w-full flex justify-center items-center pb-4 mt-16">
-                    <TextInput value={emailAddress} onChangeText={setEmailAddress} className="border border-white w-full rounded-lg p-4 mb-4  text-white" placeholder="Email" placeholderTextColor="white" textContentType="emailAddress" />
-                    <TextInput value={password} onChangeText={setPassword} className="border border-white w-full rounded-lg p-4 mb-4  text-white" placeholder="Password" placeholderTextColor="white" textContentType="password" secureTextEntry />
-                </View>
-                <View className="w-full">
-                    <TouchableOpacity
-                        onPress={onSignInPress}
-                        className="p-4 bg-white rounded-md flex flex-row justify-center items-center w-full"
-                    >
-                        <Text className=" text-base pl-2 font-semibold">Continue</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => navigation.navigate("SignUp")}
-                        className="p-4 bg-black rounded-md flex flex-row justify-center items-center w-full"
-                    >
-                        <Text className=" text-base pl-2 font-semibold text-white">Go to Sign up</Text>
-                    </TouchableOpacity>
-                </View>
-            </ScrollView>
+            <Image source={{ uri: "https://app.synclabs.so/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fsync_icon_white.850b8eaa.png&w=3840&q=75" }} className="h-64 w-48"></Image>
+            <View className="flex flex-row justify-start items-center gap-1 pt-4 mt-4">
+                <Text className="text-white font-thin text-xl">Welcome to</Text>
+                <Text className="text-white font-bold text-xl">sync labs.</Text>
+            </View>
+
+            <TouchableOpacity
+                // onPress={onPress}
+                onPress={() => {
+                    promptAsync();
+                }}
+                className="p-4 bg-white rounded-md flex flex-row justify-center items-center w-full mt-32"
+            >
+                <AntDesign name="google" size={24} color="black" />
+                <Text className=" text-base pl-4">Continue with Google</Text>
+            </TouchableOpacity>
+
             <StatusBar style="light" />
         </SafeAreaView>
     );

@@ -1,10 +1,11 @@
-import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native'
+import { View, Text, TouchableOpacity, SafeAreaView, Alert } from 'react-native'
 import React from 'react'
 import { useNavigation } from '@react-navigation/native';
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import Avatar from '../components/Avatar';
 import { Appbar } from 'react-native-paper';
 import { StatusBar } from 'expo-status-bar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const Profile = () => {
@@ -15,6 +16,24 @@ const Profile = () => {
 
     if (!isLoaded || !isSignedIn) {
         return null;
+    }
+
+    const getLocalUser = async () => {
+        const data = await AsyncStorage.getItem("@user");
+        if (!data) return null;
+        return JSON.parse(data);
+    };
+
+    const alertUserDetails = () => {
+        const userData = getLocalUser();
+        Alert.alert(
+            "User Details",
+            JSON.stringify(userData),
+            [
+                { text: "OK", onPress: () => console.log("OK Pressed") }
+            ],
+            { cancelable: false }
+        );
     }
 
     return (
