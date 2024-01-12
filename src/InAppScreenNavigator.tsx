@@ -5,22 +5,25 @@ import Profile from './screens/Profile';
 import VideoPlayer from './screens/VideoPlayer';
 import VideoGallery from './screens/VideoGallery';
 import { useUser } from '@clerk/clerk-expo';
-import { IJob } from '../utils/interfaces';
+import { IJob, IUser } from '../utils/interfaces';
 import { supabase } from '../utils/supabase';
 
 const InAppScreenStack = createNativeStackNavigator();
 
-const InAppScreenNavigator = () => {
+interface InAppScreenNavigatorProps {
+    user: IUser;
+    handleSignOut: () => void;
+}
 
-    const user = useUser();
+const InAppScreenNavigator = (props: InAppScreenNavigatorProps) => {
+
     const [allJobs, setAllJobs] = React.useState<IJob[]>();
 
     async function getAllJobs() {
-        const userEmailAddress = user.user?.emailAddresses[0].emailAddress;
         const resFromDb = await supabase
             .from('sync-job')
             .select('*')
-            .eq('user_email', userEmailAddress);
+            .eq('user_email', props.user.email);
         console.log("allJobsFromDB", resFromDb.data);
         const data = resFromDb.data?.reverse() as IJob[];
         setAllJobs(data);
@@ -34,15 +37,15 @@ const InAppScreenNavigator = () => {
     }
 
     useEffect(() => {
-        if (user.isLoaded === true && user.isSignedIn === true) {
+        if (props.user) {
             getAllJobs();
         }
     }, [])
 
     return (
         <InAppScreenStack.Navigator screenOptions={{ headerShown: false }}>
-            <InAppScreenStack.Screen name="DrawerNavigator" children={() => <DrawerNavigator allJobs={allJobs} addJobToAllJobs={addJobToAllJobs} />} />
-            <InAppScreenStack.Screen name="Profile" component={Profile} />
+            <InAppScreenStack.Screen name="DrawerNavigator" children={() => <DrawerNavigator allJobs={allJobs} addJobToAllJobs={addJobToAllJobs} user={props.user} />} />
+            <InAppScreenStack.Screen name="Profile" children={() => <Profile handleSignOut={props.handleSignOut} user={props.user} />} />
             <InAppScreenStack.Screen name="VideoGallery" children={() => <VideoGallery allJobs={allJobs} />} />
             <InAppScreenStack.Screen name="VideoPlayer" component={VideoPlayer} />
         </InAppScreenStack.Navigator>

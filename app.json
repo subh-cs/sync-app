@@ -12,20 +12,17 @@
       "backgroundColor": "#000000"
     },
     "assetBundlePatterns": ["**/*"],
-    "ios": {
-      "supportsTablet": true
-    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/synclabs_icon.png",
         "backgroundColor": "#000000"
       },
-      "package": "com.subh_cs.synclabs"
+      "package": "com.subhcs.synclabs"
     },
+    "scheme": "com.subhcs.synclabs",
     "web": {
       "favicon": "./assets/synclabs_icon.png"
     },
-    "scheme": "synclabs",
     "plugins": [
       [
         "expo-document-picker",
@@ -38,6 +35,9 @@
       "eas": {
         "projectId": "78dca0ba-1fc7-4c05-8544-b8f3bcdb5159"
       }
+    },
+    "ios": {
+      "bundleIdentifier": "com.subhcs.synclabs"
     }
   }
 }

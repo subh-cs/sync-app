@@ -10,60 +10,64 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 WebBrowser.maybeCompleteAuthSession();
 
-const Login = () => {
+interface LoginProps {
+    hitSignIn: () => void;
+}
 
-    const [token, setToken] = useState("");
-    const [userInfo, setUserInfo] = useState(null);
+const Login = (props: LoginProps) => {
+
+    // const [token, setToken] = useState("");
+    // const [userInfo, setUserInfo] = useState(null);
 
 
-    const [request, response, promptAsync] = Google.useAuthRequest({
-        androidClientId: "703565878773-9t9g365fc83ieur7jp7ca7mi92trhr2i.apps.googleusercontent.com"
-    });
+    // const [request, response, promptAsync] = Google.useAuthRequest({
+    //     androidClientId: "703565878773-b33cu94atbqhpiagrqth2go30of177gc.apps.googleusercontent.com"
+    // });
 
 
-    useEffect(() => {
-        handleEffect();
-    }, [response, token]);
+    // // useEffect(() => {
+    // //     handleEffect();
+    // // }, [response, token]);
 
-    async function handleEffect() {
-        const user = await getLocalUser();
-        console.log("user", user);
-        if (!user) {
-            if (response?.type === "success") {
-                setToken(response.authentication?.accessToken ?? '');
-                getUserInfo(response.authentication?.accessToken);
-            }
-        } else {
-            setUserInfo(user);
-            console.log("loaded locally");
-        }
-    }
+    // async function handleEffect() {
+    //     const user = await getLocalUser();
+    //     console.log("user", user);
+    //     if (!user) {
+    //         if (response?.type === "success") {
+    //             setToken(response.authentication?.accessToken ?? '');
+    //             getUserInfo(response.authentication?.accessToken);
+    //         }
+    //     } else {
+    //         setUserInfo(user);
+    //         console.log("loaded locally");
+    //     }
+    // }
 
-    const getLocalUser = async () => {
-        const data = await AsyncStorage.getItem("@user");
-        if (!data) return null;
-        return JSON.parse(data);
-    };
+    // const getLocalUser = async () => {
+    //     const data = await AsyncStorage.getItem("@user");
+    //     if (!data) return null;
+    //     return JSON.parse(data);
+    // };
 
-    const getUserInfo = async (token?: string) => {
-        if (!token) return;
-        try {
-            const response = await fetch(
-                "https://www.googleapis.com/userinfo/v2/me",
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
+    // const getUserInfo = async (token?: string) => {
+    //     if (!token) return;
+    //     try {
+    //         const response = await fetch(
+    //             "https://www.googleapis.com/userinfo/v2/me",
+    //             {
+    //                 headers: { Authorization: `Bearer ${token}` },
+    //             }
+    //         );
 
-            const user = await response.json();
-            await AsyncStorage.setItem("@user", JSON.stringify(user));
-            setUserInfo(user);
-        } catch (error) {
-            // Add your own error handler here
-            console.error(error);
-            throw error;
-        }
-    };
+    //         const user = await response.json();
+    //         await AsyncStorage.setItem("@user", JSON.stringify(user));
+    //         setUserInfo(user);
+    //     } catch (error) {
+    //         // Add your own error handler here
+    //         console.error(error);
+    //         throw error;
+    //     }
+    // };
 
     return (
         <SafeAreaView className="flex justify-center items-center h-full bg-black w-full px-4">
@@ -77,7 +81,7 @@ const Login = () => {
             <TouchableOpacity
                 // onPress={onPress}
                 onPress={() => {
-                    promptAsync();
+                    props.hitSignIn();
                 }}
                 className="p-4 bg-white rounded-md flex flex-row justify-center items-center w-full mt-32"
             >

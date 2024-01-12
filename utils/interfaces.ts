@@ -28,3 +28,15 @@ export interface ApiResponse {
     synergize: boolean;
     credits_deducted: number;
 }
+
+export interface IUser {
+    email: string;
+    family_name: string;
+    given_name: string;
+    id: string;
+    locale: string;
+    name: string;
+    picture: string;
+    verified_email: boolean;
+  }
+  
