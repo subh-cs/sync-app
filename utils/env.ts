@@ -6,6 +6,7 @@ const env = {
     AWS_LAMBDA_UPLOAD_YOUTUBE_TO_S3_URL: process.env.AWS_LAMBDA_UPLOAD_YOUTUBE_TO_S3_URL || "env not set",
     SYNCLABS_API_URL: process.env.SYNCLABS_API_URL || "env not set",
     ANDROID_CLIENT_ID: process.env.ANDROID_CLIENT_ID || "env not set",
+    IOS_CLIENT_ID: process.env.IOS_CLIENT_ID || "env not set",
 }
 
 export default env;

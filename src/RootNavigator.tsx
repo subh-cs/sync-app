@@ -18,7 +18,8 @@ const RootNavigator = () => {
     const [token, setToken] = React.useState("");
 
     const [request, response, promptAsync] = Google.useAuthRequest({
-        androidClientId: env.ANDROID_CLIENT_ID
+        androidClientId: env.ANDROID_CLIENT_ID,
+        iosClientId: env.IOS_CLIENT_ID,
     });
 
     const [isLoading, setIsLoading] = React.useState(true);
